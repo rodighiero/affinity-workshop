@@ -165,6 +165,15 @@ main:focus { outline: none; }
 }
 .prose pre code { background: none; padding: 0; font-size: var(--text-xs); }
 .lead { font-size: var(--text-lg); line-height: var(--lh-loose); color: var(--fg); max-width: 46rem; }
+.readings { font-size: var(--text-xs); line-height: var(--lh-loose); padding-left: 1.4rem; }
+.readings li { margin-bottom: 0.8rem; }
+.readings li:target { background: var(--border); border-radius: 3px; box-shadow: 0 0 0 0.3rem var(--border); }
+.readings a { overflow-wrap: anywhere; }
+
+/* Reading reference superscripts in the schedule */
+.schedule sup.ref { font-size: 0.7em; line-height: 0; }
+.schedule sup.ref a { color: var(--muted); text-decoration: none; padding-left: 0.1em; }
+.schedule sup.ref a:hover { color: var(--fg); }
 
 /* ── Schedule table ── */
 .schedule { max-width: none; }

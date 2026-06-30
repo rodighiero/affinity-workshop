@@ -3,10 +3,11 @@ title: Network Design Workshop
 description: A four-day workshop on network design — turning a corpus of texts into a visual network as a way of knowing. Bolzano, July 6–9, 2026.
 url: https://rodighiero.github.io
 
-# Served as a GitHub Pages project site at rodighiero.github.io/publication-network/,
-# so baseurl scopes the font/asset URLs under the subpath. Clear it if you later
-# move the site to a domain root (custom domain).
-baseurl: "/publication-network"
+# Empty so `bundle exec jekyll serve` serves at http://localhost:4000/ with no
+# subpath. Production doesn't rely on this: the GitHub Pages workflow builds with
+# `--baseurl "/publication-network"` (the project subpath), which overrides this
+# value. If you ever build/deploy by hand instead of via CI, pass that flag too.
+baseurl: ""
 
 # _publications/ holds the source abstracts for scripts/build-network.py only;
 # Jekyll never renders them (underscore-prefixed dirs are excluded from the build).
