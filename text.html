@@ -367,16 +367,17 @@ In conclusion, this text presents a series of experiments that explore the poten
     const segs = EASE_BANDS.map(function (b, i) {
       return '<div class="ease-seg' + (i === active ? ' on' : '') + '" style="width:' + b.w + '%"></div>';
     }).join('');
-    const legend = EASE_BANDS.map(function (b, i) {
-      return '<li class="' + (i === active ? 'on' : '') + '"><span class="lg-name">' + b.name +
-        '</span> <span class="lg-range">' + b.range + '</span> — ' + b.desc + '</li>';
+    const labels = EASE_BANDS.map(function (b, i) {
+      return '<div class="ease-label' + (i === active ? ' on' : '') + '" style="width:' + b.w + '%">' +
+        '<span class="lg-head"><span class="lg-name">' + b.name + '</span>' +
+        '<span class="lg-range">' + b.range + '</span></span>' +
+        '<span class="lg-desc">' + b.desc + '</span></div>';
     }).join('');
     const pos = Math.max(2, Math.min(98, ease));
     easeScaleEl.innerHTML =
       '<div class="ease-pointer" style="left:' + pos + '%"><span class="ease-value">' + Math.round(ease) + '</span></div>' +
       '<div class="ease-bar">' + segs + '</div>' +
-      '<div class="ease-ends"><span>0 · harder</span><span>easier · 100</span></div>' +
-      '<ul class="ease-legend">' + legend + '</ul>';
+      '<div class="ease-labels">' + labels + '</div>';
   }
 
   // ── Input wiring ──

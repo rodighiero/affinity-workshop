@@ -107,24 +107,31 @@
 }
 .ease-seg:last-child { border-right: none; }
 .ease-seg.on { background: var(--fg); }
-.ease-ends {
+.ease-labels { display: flex; margin-top: 0.4rem; }
+.ease-label {
+  min-width: 0;
   display: flex;
-  justify-content: space-between;
-  margin-top: 0.35rem;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.3rem 0.4rem 0;
   font-size: var(--text-xxs);
+  line-height: var(--lh-tight);
+  color: var(--muted);
+  border-top: 2px solid transparent;
+}
+.ease-label + .ease-label { border-left: 1px solid var(--border); }
+.ease-label.on { color: var(--fg); border-top-color: var(--fg); }
+.ease-label .lg-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.35rem;
+}
+.ease-label .lg-name { font-weight: 600; }
+.ease-label .lg-range {
+  font-variant-numeric: tabular-nums;
   color: var(--muted);
 }
-.ease-legend { list-style: none; padding: 0; margin: 0.8rem 0 0; }
-.ease-legend li {
-  font-size: var(--text-xxs);
-  line-height: var(--lh-normal);
-  color: var(--muted);
-  padding: 0.15rem 0 0.15rem 0.6rem;
-  border-left: 2px solid transparent;
-}
-.ease-legend li.on { color: var(--fg); border-left-color: var(--fg); }
-.ease-legend .lg-name { font-weight: 600; }
-.ease-legend .lg-range { font-variant-numeric: tabular-nums; }
+.ease-label .lg-desc { color: var(--muted); }
 
 /* Stat cards */
 .stat-grid {
