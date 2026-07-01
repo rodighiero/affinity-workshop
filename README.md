@@ -1,4 +1,4 @@
-# Affinity Network Workshop
+# Affinity Workshop
 
 The companion website for a four-day workshop on network design — *turning a
 corpus of texts into a visual network as a way of knowing* (Bolzano, July 6–9,
