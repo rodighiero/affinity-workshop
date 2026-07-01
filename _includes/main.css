@@ -93,7 +93,7 @@ main:focus { outline: none; }
   align-items: baseline;
   justify-content: space-between;
   gap: 0.5rem 1.5rem;
-  margin: 0 0 2.5rem;
+  margin: 0 0 1.1rem;
   padding-bottom: 0.6rem;
   border-bottom: 1px solid var(--border);
 }
