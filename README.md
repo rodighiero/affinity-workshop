@@ -1,75 +1,88 @@
-# Publication Similarity Network
+# Affinity Network Workshop
 
-A standalone Jekyll site that renders a **publication similarity graph** with D3 —
-extracted from the network view of [dariorodighiero.com](https://dariorodighiero.com).
+The companion website for a four-day workshop on network design — *turning a
+corpus of texts into a visual network as a way of knowing* (Bolzano, July 6–9,
+2026). Deployed with GitHub Pages at
+[rodighiero.github.io/affinity-workshop](https://rodighiero.github.io/affinity-workshop/).
 
-Each node is one publication, placed near the others it most resembles. Similarity
-is computed offline from the title and abstract of every paper; the page only
-fit-scales the pre-baked layout into the viewport and draws the edges — no force
-simulation runs in the browser.
+It is a small Jekyll site with two pages:
+
+- **Home** (`index.html`) — the workshop description, learning outcomes,
+  schedule, teachers, and readings.
+- **Network** (`network.html`, at `/network/`) — an **in-browser** builder that
+  turns a set of text files into a **text/affinity similarity network**. Drop in
+  `.txt`/`.md` files and it embeds them, computes pairwise similarity, and lays
+  them out as a force-directed graph — all client-side. Nothing is precomputed,
+  and nothing leaves the browser.
 
 ## Run the site
 
 ```bash
 bundle install
-bundle exec jekyll serve   # http://localhost:4000
+bundle exec jekyll serve   # http://localhost:4000/
 ```
 
-Everything the page needs is committed: the graph data (`_data/network.json`),
-D3 (`js/d3.v7.min.js`), and the fonts (`fonts/`). No build step is required just
-to view it.
+Locally `baseurl` is empty, so the site serves at the root. In CI the GitHub
+Pages workflow builds with the project subpath (`--baseurl "/<repo-name>"`),
+derived automatically from the repo — no manual change needed if the repo is
+renamed.
 
-If you deploy as a GitHub Pages **project** site (served under
-`username.github.io/publication-network/`), set `baseurl: "/publication-network"`
-in `_config.yml` so the font/asset URLs resolve under the subpath. Served at a
-domain root (custom domain), leave `baseurl` empty.
+The Network page pulls two things from the internet at runtime: the
+[Transformers.js](https://github.com/huggingface/transformers.js) library and
+the embedding model (`Xenova/multilingual-e5-small`, ~110 MB, downloaded once
+and then browser-cached). D3 (`js/d3.v7.min.js`) and the Nunito fonts
+(`fonts/`) are vendored.
 
-Node links point at `https://dariorodighiero.com` (see `SITE_BASE` in
-`_layouts/network.html`); change that constant to point elsewhere.
+## How the Network page works
 
-## Regenerate the graph
+Everything runs in `network.html` (markup + inline ES-module script); styling is
+in `_includes/network.css` (shared graph visuals) and `_includes/studio.css`
+(the builder UI). The pipeline, on **Build network**:
 
-The graph is pre-computed offline from the publication abstracts in
-`_publications/`. After editing those, rebuild `_data/network.json`:
+1. **Read** the dropped files. Each becomes a node; its name is the file's first
+   Markdown heading (`# …`) if present, otherwise the filename.
+2. **Embed** each document with `Xenova/multilingual-e5-small` via
+   Transformers.js (mean-pooled, normalized). Mixed-language corpora work
+   directly — the multilingual model needs no translation step.
+3. **Similarity** — pairwise cosine similarity across the embeddings.
+4. **Links** — each node connects to its single strongest neighbour, but only if
+   that similarity clears the **Connection threshold**.
+5. **Layout** — a live D3 force simulation (`d3.v7`) the user can drag and tune.
 
-```bash
-pip install -r requirements.txt   # numpy, pyyaml, sentence-transformers, transformers
-KMP_DUPLICATE_LIB_OK=TRUE python3 scripts/build-network.py
-```
-
-The pipeline (`scripts/build-network.py`):
-
-1. Reads each Markdown file: the first `# ` heading is the title and the whole
-   document is used as-is (no frontmatter, no cleaning — headings, links,
-   footnotes, and HTML are left in place).
-2. Detects each abstract's language automatically with `langdetect` and
-   machine-translates non-English ones to English via
-   `Helsinki-NLP/opus-mt-{lang}-en` (cached on disk in
-   `_data/translations-cache.json`, keyed by content hash).
-3. Embeds each title + abstract with `BAAI/bge-base-en-v1.5` (768-dim).
-4. Computes pairwise cosine similarity.
-5. Shells out to `scripts/layout-network.js` (Node + the vendored D3) to bake the
-   force-directed arrangement — this script is the single source of truth for the
-   graph geometry (force constants, canvas size).
-6. Writes `_data/network.json`: the node list (with baked `x`/`y`), the similarity
-   matrix, the `links` array (each node's single strongest neighbour above
-   `STRONG_SIM = 0.70`), and the `canvas` size positions were baked into.
-
-`scripts/build-network.py` needs **Node.js on PATH** for the layout step.
+The panel exposes live controls (threshold, repulsion, gravity, node spacing,
+link distance), label toggles, a top-right stats overlay (files, edges,
+clusters, unconnected, strongest/avg similarity, build time), and PNG export at
+1×/2×/4×. A built-in sample set is available for a quick try without your own
+files.
 
 ## Layout
 
 ```
-_config.yml                  # site config
-_layouts/network.html        # the only layout — markup + CSS + D3 renderer
-index.html                   # entry page (layout: network)
-_data/network.json           # pre-computed graph (committed)
-_data/translations-cache.json
-_publications/*.md           # source abstracts for the pipeline
-_includes/                   # main.css, nunito.css, head-init.html
+_config.yml                  # site config (title, baseurl note)
+_layouts/default.html        # the only layout — head, nav, mode toggle, styles
+index.html                   # Home (workshop info + schedule)
+network.html                 # in-browser network builder (/network/)
+_includes/
+  site-nav.html              # shared header nav
+  head-init.html             # early <head> script (theme, etc.)
+  main.css                   # base styles
+  network.css                # graph visuals (nodes, links, labels, stage)
+  studio.css                 # builder UI (columns, controls, overlays)
+  nunito.css                 # @font-face for the vendored fonts
 fonts/                       # self-hosted Nunito
 js/d3.v7.min.js              # vendored D3 v7
-scripts/build-network.py     # regeneration pipeline
-scripts/layout-network.js    # offline force layout (Node)
-requirements.txt             # Python deps for the pipeline
 ```
+
+## Legacy files (unused)
+
+Earlier the site rendered a *pre-baked* publication graph computed offline. That
+version is gone, but some of its inputs are still in the tree and are **no longer
+used by the site**:
+
+- `scripts/build-network.py`, `scripts/layout-network.js` — the old offline
+  embed/layout pipeline.
+- `_publications/*.md` — the source abstracts it consumed.
+- `requirements.txt` — its Python dependencies.
+- `_data/translations-cache.json` — its translation cache.
+
+They can be deleted whenever you like; the current site doesn't reference them.
