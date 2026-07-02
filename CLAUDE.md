@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 The companion website for the **Affinity Network Workshop** (a four-day workshop on network design, Bolzano, July 6–9, 2026). It's a small Jekyll site with three pages, and everything analytical runs **client-side in the browser** — nothing is precomputed, committed, or uploaded:
 
 - **Home** (`index.html`, permalink `/`) — workshop description, learning outcomes, approach, and a day-by-day schedule.
-- **Text** (`text.html`, permalink `/text/`) — the "microscope": drop in **one** document and read it in layers (counts, readability, keywords, key phrases, and where terms appear).
+- **Text** (`text.html`, permalink `/text/`) — the "microscope": drop in **one** document and read it in layers (size, vocabulary, grammar, entities, readability, keywords, key phrases, and where terms appear). English only.
 - **Network** (`network.html`, permalink `/network/`) — the "telescope": drop in a **set** of text files and watch them arrange into a similarity network. Embedding, similarity, and force layout all run in the browser.
 
 > History: the site previously rendered a *pre-baked* publication graph computed offline in Python. That is gone, along with its `_publications/` abstracts and `scripts/`. If you find references to `_data/network.json`, a `network` layout, or "baked positions", they're stale — nothing in the current site produces or consumes them.
@@ -48,18 +48,21 @@ On **Build network**:
 
 ### The Text analyzer (`text.html`)
 
-On **Analyze**, a single dropped `.txt`/`.md` file (or a bundled sample) is read and broken into five sections, each with a "How it's built" / "Algorithm" aside explaining the method:
+Input is a dropped `.txt`/`.md` file, text typed/pasted into the box beside the dropzone, or the bundled sample — all three feed the same staged text (files and the sample also fill the paste box). On **Analyze** it's broken into eight sections. Each has a right-hand aside — one short paragraph explaining the left column, with a single reference/library link, top-aligned to the figure rather than the heading — and each stat card carries a plain-language definition shown as a styled tooltip on hover/focus (`STAT_DESC` + the generic `[data-tip]` CSS, also used by the grade bars and formula rows):
 
-1. **Overview** — word/sentence/paragraph counts, average sentence length, lexical diversity (type–token ratio), hapax count, and a ~200 wpm reading-time estimate.
-2. **Readability** — Flesch reading-ease and Flesch–Kincaid grade level (syllables estimated from vowel groups; the heuristic assumes English), plotted on a labelled ease scale.
-3. **Keywords** — ranked single terms.
-4. **Key phrases** — ranked multi-word phrases.
-5. **Where terms appear** — positional distribution of selected terms across the document.
+1. **Measurements** — word/sentence/paragraph/character counts, average sentence length, longest sentence, average word length, and a ~200 wpm reading-time estimate, plus a *sentence-length* histogram (5-word buckets).
+2. **Vocabulary** — unique words, lexical diversity (type–token ratio), lexical density (content words ÷ all words), and average uses per word, plus a *word-frequency spectrum* histogram (how many words occur 1×, 2×, … 11+×).
+3. **Grammar** — noun : verb, adjectives : noun, and adverbs : verb ratios, plus active/passive **voice** (sentence-level via `#Passive`), a stacked *grammatical composition* bar (nouns/verbs/adjectives/adverbs/other, with a note that "other" is function words + punctuation).
+4. **Entities** — distinct people/places/organizations counts, plus chip lists of the actual named entities per type (deduped, with a mention count when a name recurs; heuristic, so expect stray words).
+5. **Readability** — Flesch reading-ease, syllables/word, and complex-word (3+ syllable) and long-word (>6 letter) shares, plotted on a labelled ease scale, plus a *grade-level by formula* bar chart comparing Flesch–Kincaid, Gunning fog, SMOG and Coleman–Liau on a fixed 0–24 axis (syllables estimated from vowel groups; assumes English).
+6. **Keywords** — content-word frequency: nouns (singularised) and verbs (infinitive), so inflected forms merge.
+7. **Key phrases** — noun phrases (head noun singularised), split on stopwords into runs of ≥2 content words, kept if they occur ≥2×.
+8. **Where terms appear** — positional dispersion of the top keywords, matched against a lemma-aligned token stream so inflected forms register.
 
-Pure string/statistics work — no model download, so it runs instantly.
+**compromise** (`compromise@14` from esm.sh, imported by the inline module) is created once and drives most of the page: it provides the shared **word/sentence token base** for Measurements and Vocabulary (via `doc.terms()` and `doc.sentences()`, so every section counts the same way — only paragraphs and characters stay plain, since compromise has no concept of them), plus part-of-speech tagging, voice detection, named-entity recognition, and lemmatisation for Grammar, Entities, Keywords, Key phrases and the dispersion stream. So the whole page needs a one-time CDN fetch (~200 KB, browser-cached), then runs instantly. Readability's syllable heuristic is the only non-compromise analysis. The whole page assumes **English**. Key helpers: `renderStats` (stat cards + tooltips), `renderSentHist`/`renderFreqSpectrum`/`renderGradeBars` (histograms and bar charts), `renderGrammar` (composition bar), `renderEntities`/`entityList` (entity chips), `buildLemmatizer` (surface→lemma map — nouns singularised in one whole-doc pass, verbs infinitivised per unique form because the whole-view `toInfinitive()` is O(n²)-slow), and `keywordCounts`/`keyphraseCounts`/`lemmatizedTerms` (all take the compromise `doc` plus that lemmatizer).
 
 ## Conventions
 
-- Vanilla ES5-style JS in the inline modules (function expressions, no build step). Keep it dependency-free beyond D3 (vendored, `js/d3.v7.min.js`) and Transformers.js (CDN, Network page only).
+- Vanilla ES5-style JS in the inline modules (function expressions, no build step). Keep it dependency-free beyond D3 (vendored, `js/d3.v7.min.js`), Transformers.js (CDN, Network page only), and compromise (CDN, Text page only).
 - CSS uses design tokens from `main.css` (`--fg`, `--bg`, `--muted`, `--border`, `--text-xs`, `--tracking-caps`, …) and supports light/dark via `html.dark`.
 - After a JS change, a quick check is `node --check` on the extracted module plus `jekyll build`.

@@ -10,20 +10,24 @@ description: Close-read a single document — counts, readability, keywords and 
 </header>
 
 <div class="text-input">
-  <label class="dropzone" id="dropzone">
-    <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-      <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    <span><strong>Drop a text file here</strong><span class="dz-sub">or click to choose · .txt or .md</span></span>
-    <input type="file" id="file-input" accept=".txt,.md,.markdown,text/plain">
-  </label>
+  <div class="text-input-row">
+    <label class="dropzone" id="dropzone">
+      <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+        <path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span><strong>Drop a text file here</strong><span class="dz-sub">or click to choose · .txt or .md</span></span>
+      <input type="file" id="file-input" accept=".txt,.md,.markdown,text/plain">
+    </label>
+    <textarea id="paste-input" class="paste-input" placeholder="…or paste your text here"></textarea>
+  </div>
 
-  <p class="dz-alt">No text handy? <button type="button" class="linkish" id="sample-btn">Load a sample</button> — <a href="https://doi.org/10.1177/14703572241248408" target="_blank" rel="noopener">In Praise of Visual Representation</a> by Dario Rodighiero. <span class="sample-note" id="sample-note" hidden>Loaded — click Analyze.</span></p>
-
-  <div class="text-actions">
-    <button type="button" class="studio-build" id="analyze-btn">Analyze</button>
-    <button type="button" class="linkish" id="clear-btn">Clear</button>
+  <div class="text-foot">
+    <p class="dz-alt">No text handy? <button type="button" class="linkish" id="sample-btn">Load a sample</button> — <a href="https://doi.org/10.1177/14703572241248408" target="_blank" rel="noopener">In Praise of Visual Representation</a>. <span class="sample-note" id="sample-note" hidden>Loaded — click Analyze.</span></p>
+    <div class="text-actions">
+      <button type="button" class="studio-build" id="analyze-btn">Analyze</button>
+      <button type="button" class="linkish" id="clear-btn">Clear</button>
+    </div>
   </div>
   <p class="studio-status" id="status" aria-live="polite"></p>
 </div>
@@ -32,22 +36,53 @@ description: Close-read a single document — counts, readability, keywords and 
 
   <section class="analysis">
     <div class="analysis-main">
-      <h2 class="analysis-head">Overview</h2>
+      <h2 class="analysis-head">Measurements</h2>
       <figure class="fig">
-        <div class="stat-grid" id="overview"></div>
+        <div class="stat-grid" id="size"></div>
+        <div class="hist" id="sentlen"></div>
       </figure>
     </div>
     <aside class="analysis-aside">
-      <p class="aside-what">The document's size, and how varied its vocabulary is, at a glance.</p>
-      <p class="aside-label">How it's built</p>
-      <ol class="aside-steps">
-        <li>Split the text into word tokens (Unicode letters/digits), sentences (on <code>.</code> <code>!</code> <code>?</code>), and paragraphs (blank lines).</li>
-        <li>Count each; divide words by sentences for the average length.</li>
-        <li>Lexical diversity = unique words ÷ total words; “used once” counts <em>hapax</em> (terms appearing exactly once).</li>
-        <li>Reading time assumes ~200 words per minute.</li>
-      </ol>
-      <p class="aside-label">Algorithm</p>
-      <p class="aside-algo">The vocabulary score is the <a href="https://doi.org/10.3758/BRM.42.2.381" target="_blank" rel="noopener">type–token ratio</a>, a standard index of lexical diversity.</p>
+      <p class="aside-text">How big the document is, and the shape of its sentences and words: compromise splits the text into word tokens and sentences (paragraphs by blank lines) and each is counted, then divided to give average sentence and word lengths. Reading time assumes a common <a href="https://doi.org/10.1016/j.jml.2019.104047" target="_blank" rel="noopener">silent-reading</a> rate of ~200 words per minute.</p>
+    </aside>
+  </section>
+
+  <section class="analysis">
+    <div class="analysis-main">
+      <h2 class="analysis-head">Vocabulary</h2>
+      <figure class="fig">
+        <div class="stat-grid" id="vocab"></div>
+        <div class="hist" id="vocab-spectrum"></div>
+      </figure>
+    </div>
+    <aside class="analysis-aside">
+      <p class="aside-text">How varied and how densely packed the word choice is: lexical diversity is the <a href="https://doi.org/10.3758/BRM.42.2.381" target="_blank" rel="noopener">type–token ratio</a> of unique words to the total, and lexical density the share that are content words (nouns, verbs, adjectives, adverbs). The spectrum counts how many words appear once, twice, and so on — most occur only once, the long tail of rare words typical of natural language. Assumes English.</p>
+    </aside>
+  </section>
+
+  <section class="analysis">
+    <div class="analysis-main">
+      <h2 class="analysis-head">Grammar</h2>
+      <figure class="fig">
+        <div class="stat-grid" id="grammar-stats"></div>
+        <div class="gram" id="grammar"></div>
+      </figure>
+    </div>
+    <aside class="analysis-aside">
+      <p class="aside-text">The grammatical makeup of the prose: <a href="https://github.com/spencermountain/compromise" target="_blank" rel="noopener">compromise</a> tags each word's part of speech, so the bar shows each part of speech as a share of all words, the ratios contrast styles (nominal vs verbal, more or less descriptive), and sentences are split into active and passive voice. Assumes English.</p>
+    </aside>
+  </section>
+
+  <section class="analysis">
+    <div class="analysis-main">
+      <h2 class="analysis-head">Entities</h2>
+      <figure class="fig">
+        <div class="stat-grid" id="entities"></div>
+        <div class="ent" id="entity-list"></div>
+      </figure>
+    </div>
+    <aside class="analysis-aside">
+      <p class="aside-text">The people, places and organizations the text names: <a href="https://github.com/spencermountain/compromise" target="_blank" rel="noopener">compromise</a> spots these named entities by their form and context, then lists the distinct ones of each kind (with a count when a name recurs). Detection is heuristic, so expect the odd miss or stray word. Assumes English.</p>
     </aside>
   </section>
 
@@ -57,19 +92,11 @@ description: Close-read a single document — counts, readability, keywords and 
       <figure class="fig">
         <div class="stat-grid" id="readability"></div>
         <div class="ease-scale" id="ease-scale"></div>
+        <div class="grade-bars" id="grade-bars"></div>
       </figure>
     </div>
     <aside class="analysis-aside">
-      <p class="aside-what">How demanding the prose is to read.</p>
-      <p class="aside-label">How it's built</p>
-      <ol class="aside-steps">
-        <li>Take words ÷ sentences, and syllables ÷ words (syllables estimated from vowel groups).</li>
-        <li>Reading ease = 206.835 − 1.015 × (words ÷ sentences) − 84.6 × (syllables ÷ words).</li>
-        <li>Grade level = 0.39 × (words ÷ sentences) + 11.8 × (syllables ÷ words) − 15.59.</li>
-      </ol>
-      <p class="aside-note">The syllable heuristic assumes English.</p>
-      <p class="aside-label">Algorithm</p>
-      <p class="aside-algo">The <a href="https://doi.org/10.1037/h0057532" target="_blank" rel="noopener">Flesch reading-ease</a> formula (1948), with its Flesch–Kincaid grade-level variant.</p>
+      <p class="aside-text">How demanding the prose is to read: from sentence length, syllables per word, and the share of complex (3+ syllable) and long words, several formulas estimate a school grade. The <a href="https://doi.org/10.1037/h0057532" target="_blank" rel="noopener">Flesch reading-ease</a> score (0–100) is plotted on the scale; the bars compare grade-level estimates (Flesch–Kincaid, Gunning fog, SMOG, Coleman–Liau), which rarely agree exactly. The syllable heuristic assumes English.</p>
     </aside>
   </section>
 
@@ -81,15 +108,7 @@ description: Close-read a single document — counts, readability, keywords and 
       </figure>
     </div>
     <aside class="analysis-aside">
-      <p class="aside-what">The content words the document leans on most.</p>
-      <p class="aside-label">How it's built</p>
-      <ol class="aside-steps">
-        <li>Lowercase the text and split it into word tokens.</li>
-        <li>Drop stopwords (English, Italian, French), tokens under three letters, and pure numbers.</li>
-        <li>Count the rest; show the top fifteen, bars scaled to the most frequent term.</li>
-      </ol>
-      <p class="aside-label">Algorithm</p>
-      <p class="aside-algo">Ranking by raw <a href="https://doi.org/10.1147/rd.22.0159" target="_blank" rel="noopener">term frequency</a>, following Luhn (1958).</p>
+      <p class="aside-text">The content words the document leans on most: compromise keeps the nouns and verbs and reduces each to its base form — so “communities” and “community”, or “maps” and “mapping”, count as one — and the terms are ranked by <a href="https://doi.org/10.1147/rd.22.0159" target="_blank" rel="noopener">frequency</a> (Luhn, 1958). Assumes English.</p>
     </aside>
   </section>
 
@@ -101,15 +120,7 @@ description: Close-read a single document — counts, readability, keywords and 
       </figure>
     </div>
     <aside class="analysis-aside">
-      <p class="aside-what">Recurring multi-word expressions, not just single words.</p>
-      <p class="aside-label">How it's built</p>
-      <ol class="aside-steps">
-        <li>Within each sentence, take every adjacent two- and three-word sequence.</li>
-        <li>Discard any sequence containing a stopword, a sub-three-letter token, or a number.</li>
-        <li>Count across the document; keep those occurring at least twice.</li>
-      </ol>
-      <p class="aside-label">Algorithm</p>
-      <p class="aside-algo">Adjacent word sequences are word <a href="https://en.wikipedia.org/wiki/N-gram" target="_blank" rel="noopener">n-grams</a> (bigrams and trigrams).</p>
+      <p class="aside-text">Recurring multi-word expressions, not just single words: compromise extracts <a href="https://en.wikipedia.org/wiki/Noun_phrase" target="_blank" rel="noopener">noun phrases</a>, which are split on stopwords into runs of two or more content words and kept when they occur at least twice. Assumes English.</p>
     </aside>
   </section>
 
@@ -121,51 +132,50 @@ description: Close-read a single document — counts, readability, keywords and 
       </figure>
     </div>
     <aside class="analysis-aside">
-      <p class="aside-what">Whether a keyword runs through the whole text or clusters in one part.</p>
-      <p class="aside-label">How it's built</p>
-      <ol class="aside-steps">
-        <li>Divide the document into 48 equal slices by word position.</li>
-        <li>For each top keyword, fill a slice when the word occurs in it.</li>
-        <li>Left is the start of the text, right is the end.</li>
-      </ol>
-      <p class="aside-label">Algorithm</p>
-      <p class="aside-algo">A <a href="https://doi.org/10.1075/ijcl.13.4.02gri" target="_blank" rel="noopener">lexical dispersion</a> plot, in the sense of Gries (2008).</p>
+      <p class="aside-text">Whether a keyword runs through the whole text or clusters in one part: the document is divided into 48 equal slices and each top keyword's slices are filled where it occurs (any inflected form counts), left being the start and right the end — a <a href="https://doi.org/10.1075/ijcl.13.4.02gri" target="_blank" rel="noopener">lexical dispersion</a> plot in the sense of Gries (2008).</p>
     </aside>
   </section>
 
 </div>
 
 <script type="module">
+  import nlp from 'https://esm.sh/compromise@14';
+
   const dropzone = document.getElementById('dropzone');
+  const pasteInput = document.getElementById('paste-input');
   const fileInput = document.getElementById('file-input');
   const analyzeBtn = document.getElementById('analyze-btn');
   const sampleBtn = document.getElementById('sample-btn');
   const clearBtn = document.getElementById('clear-btn');
   const statusEl = document.getElementById('status');
   const resultsEl = document.getElementById('results');
-  const overviewEl = document.getElementById('overview');
+  const sizeEl = document.getElementById('size');
+  const sentlenEl = document.getElementById('sentlen');
+  const vocabEl = document.getElementById('vocab');
+  const vocabSpectrumEl = document.getElementById('vocab-spectrum');
+  const grammarStatsEl = document.getElementById('grammar-stats');
+  const entitiesEl = document.getElementById('entities');
+  const entityListEl = document.getElementById('entity-list');
   const readabilityEl = document.getElementById('readability');
+  const gradeBarsEl = document.getElementById('grade-bars');
   const easeScaleEl = document.getElementById('ease-scale');
   const keywordsEl = document.getElementById('keywords');
   const keyphrasesEl = document.getElementById('keyphrases');
   const positionsEl = document.getElementById('positions');
+  const grammarEl = document.getElementById('grammar');
   const sampleNote = document.getElementById('sample-note');
 
   // The staged document (from a dropped/chosen file or the sample).
   let docText = '';
 
-  // Compact multilingual stopword set (EN + common IT/FR), enough for keyword work.
+  // Compact English stopword set, enough for keyword work.
   const STOP = new Set(('a an the and or but if then else of to in on at by for with about ' +
     'as is are was were be been being it its this that these those i you he she we they them his ' +
     'her their our your my me him us not no nor so than too very can will just don should now ' +
     'from up down out over under again further once here there all any both each few more most ' +
     'other some such only own same which who whom what when where why how into through during ' +
     'before after above below between off because while would could may might must shall do does ' +
-    'did has have had having ' +
-    'le la les un une des du de dans et ou mais donc que qui quoi pour par sur avec sans ce cette ' +
-    'ces son sa ses leur nous vous je tu il elle ils elles on est sont ne pas plus au aux ' +
-    'il lo gli i le un uno una di da in con su per tra fra e o ma che chi cui non piu come dove ' +
-    'quando perche si no del della dei delle nel nella suo sua loro questo questa quello quella')
+    'did has have had having')
     .split(/\s+/));
 
   // Sample: "In praise of visual representation" (Rodighiero, 2024), cleaned to
@@ -217,12 +227,6 @@ In conclusion, this text presents a series of experiments that explore the poten
   function tokenizeWords(text) {
     return (text.toLowerCase().match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu) || []);
   }
-  function splitSentences(text) {
-    const clean = text.replace(/\s+/g, ' ').trim();
-    if (!clean) return [];
-    const m = clean.match(/[^.!?]+[.!?]+|[^.!?]+$/g);
-    return (m || []).map(function (s) { return s.trim(); }).filter(Boolean);
-  }
   function splitParagraphs(text) {
     return text.split(/\n\s*\n/).map(function (p) { return p.replace(/\s+/g, ' ').trim(); }).filter(Boolean);
   }
@@ -241,40 +245,110 @@ In conclusion, this text presents a series of experiments that explore the poten
     const text = docText.trim();
     if (text.length < 40) { setStatus('Drop in a longer document (at least a sentence or two).', true); return; }
 
-    const words = tokenizeWords(text);
-    const sentences = splitSentences(text);
+    // compromise parses once; Measurements and Vocabulary share its word and
+    // sentence tokens so every section counts the same way (paragraphs and
+    // characters stay plain — compromise has no concept of them).
+    const doc = nlp(text);
+    const words = doc.terms().out('array').map(cleanTok).filter(Boolean);
+    const sentWordCounts = doc.sentences().json().map(function (s) { return s.terms.length; }).filter(function (n) { return n > 0; });
+    const maxSentLen = sentWordCounts.length ? Math.max.apply(null, sentWordCounts) : 0;
     const paragraphs = splitParagraphs(text);
     const chars = text.length;
     const wordCount = words.length;
-    const sentCount = Math.max(1, sentences.length);
+    const sentCount = Math.max(1, doc.sentences().length);
     const syllables = words.reduce(function (s, w) { return s + countSyllables(w); }, 0);
-    const uniq = new Set(words);
-    const hapax = countHapax(words);
+    const freq = wordFreq(words);
+    const typeCount = freq.size;
     const readMins = Math.max(1, Math.round(wordCount / 200));
+    const avgWordLen = words.reduce(function (s, w) { return s + w.length; }, 0) / Math.max(1, wordCount);
 
-    renderStats(overviewEl, [
+    const nouns = doc.nouns().length;
+    const verbs = doc.verbs().length;
+    const adjectives = doc.adjectives().length;
+    const adverbs = doc.adverbs().length;
+    const peopleList = entityList(doc.people());
+    const placesList = entityList(doc.places());
+    const orgsList = entityList(doc.organizations());
+    const cTerms = doc.terms().length;
+    const contentWords = nouns + verbs + adjectives + adverbs;
+    const otherTerms = Math.max(0, cTerms - contentWords);
+    const lexDensity = cTerms ? contentWords / cTerms : 0;
+    const nvRatio = verbs ? nouns / verbs : 0;
+    const adjNoun = nouns ? adjectives / nouns : 0;
+    const advVerb = verbs ? adverbs / verbs : 0;
+    const sentTotal = doc.sentences().length;
+    const passiveSents = doc.sentences().if('#Passive').length;
+    const activeSents = Math.max(0, sentTotal - passiveSents);
+
+    renderStats(sizeEl, [
       [wordCount.toLocaleString(), 'words'],
       [sentCount.toLocaleString(), 'sentences'],
       [paragraphs.length.toLocaleString(), 'paragraphs'],
       [chars.toLocaleString(), 'characters'],
-      [(wordCount / sentCount).toFixed(1), 'avg words / sentence'],
-      [(uniq.size / Math.max(1, wordCount) * 100).toFixed(0) + '%', 'lexical diversity'],
-      [hapax.toLocaleString(), 'words used once'],
+      [(wordCount / sentCount).toFixed(1), 'avg words / sentence', 'stat-break'],
+      [maxSentLen.toLocaleString(), 'longest sentence'],
+      [avgWordLen.toFixed(1), 'avg word length'],
       ['~' + readMins + ' min', 'reading time']
     ]);
+    renderSentHist(sentlenEl, sentWordCounts);
+    renderStats(vocabEl, [
+      [typeCount.toLocaleString(), 'unique words'],
+      [(typeCount / Math.max(1, wordCount) * 100).toFixed(0) + '%', 'lexical diversity'],
+      [(lexDensity * 100).toFixed(0) + '%', 'lexical density'],
+      [(wordCount / Math.max(1, typeCount)).toFixed(1), 'avg uses / word']
+    ]);
+    renderFreqSpectrum(vocabSpectrumEl, freq);
+    renderStats(grammarStatsEl, [
+      [nvRatio ? nvRatio.toFixed(2) : '—', 'noun : verb ratio'],
+      [adjNoun ? adjNoun.toFixed(2) : '—', 'adjectives : noun'],
+      [advVerb ? advVerb.toFixed(2) : '—', 'adverbs : verb'],
+      [activeSents.toLocaleString(), 'active voice'],
+      [passiveSents.toLocaleString(), 'passive voice']
+    ]);
+    renderStats(entitiesEl, [
+      [peopleList.length.toLocaleString(), 'people'],
+      [placesList.length.toLocaleString(), 'places'],
+      [orgsList.length.toLocaleString(), 'organizations']
+    ]);
+    renderEntities(entityListEl, [
+      { label: 'People', items: peopleList },
+      { label: 'Places', items: placesList },
+      { label: 'Organizations', items: orgsList }
+    ]);
+    renderGrammar(grammarEl, [
+      { name: 'Nouns', count: nouns, op: 1 },
+      { name: 'Verbs', count: verbs, op: 0.72 },
+      { name: 'Adjectives', count: adjectives, op: 0.5 },
+      { name: 'Adverbs', count: adverbs, op: 0.34 },
+      { name: 'Other', count: otherTerms, op: 0.18 }
+    ], cTerms);
 
     const wps = wordCount / sentCount;
     const spw = syllables / Math.max(1, wordCount);
+    const complexCount = words.filter(function (w) { return countSyllables(w) >= 3; }).length;
+    const longCount = words.filter(function (w) { return w.length > 6; }).length;
+    const letters = words.reduce(function (s, w) { return s + w.replace(/[^a-z]/gi, '').length; }, 0);
     const ease = 206.835 - 1.015 * wps - 84.6 * spw;
-    const grade = 0.39 * wps + 11.8 * spw - 15.59;
+    const gradeFK = 0.39 * wps + 11.8 * spw - 15.59;
+    const gradeFog = 0.4 * (wps + 100 * complexCount / Math.max(1, wordCount));
+    const gradeSMOG = 1.0430 * Math.sqrt(complexCount * (30 / sentCount)) + 3.1291;
+    const gradeCL = 0.0588 * (letters / Math.max(1, wordCount) * 100) - 0.296 * (sentCount / Math.max(1, wordCount) * 100) - 15.8;
     renderStats(readabilityEl, [
       [Math.round(ease).toString(), 'Flesch reading ease'],
-      [grade > 0 ? grade.toFixed(1) : '—', 'Grade level (F–K)'],
-      [spw.toFixed(2), 'syllables / word']
+      [spw.toFixed(2), 'syllables / word'],
+      [(complexCount / Math.max(1, wordCount) * 100).toFixed(0) + '%', 'complex words'],
+      [(longCount / Math.max(1, wordCount) * 100).toFixed(0) + '%', 'long words']
     ]);
     renderEaseScale(ease);
+    renderGradeBars(gradeBarsEl, [
+      { name: 'Flesch–Kincaid', grade: gradeFK, tip: '0.39×(words/sentence) + 11.8×(syllables/word) − 15.59' },
+      { name: 'Gunning fog', grade: gradeFog, tip: '0.4 × (words/sentence + 100 × complex-word share)' },
+      { name: 'SMOG', grade: gradeSMOG, tip: '1.043 × √(complex words × 30/sentences) + 3.129' },
+      { name: 'Coleman–Liau', grade: gradeCL, tip: '0.0588×(letters per 100 words) − 0.296×(sentences per 100 words) − 15.8' }
+    ]);
 
-    const kw = keywordCounts(words).slice(0, 15);
+    const lemma = buildLemmatizer(doc);
+    const kw = keywordCounts(doc, lemma).slice(0, 15);
     const maxKw = kw.length ? kw[0][1] : 1;
     keywordsEl.innerHTML = kw.map(function (e) {
       const pct = Math.round(e[1] / maxKw * 100);
@@ -283,15 +357,17 @@ In conclusion, this text presents a series of experiments that explore the poten
         '<span class="bar-count">' + e[1] + '</span></div>';
     }).join('') || '<p class="analysis-note">No salient keywords found.</p>';
 
-    const kp = keyphraseCounts(sentences).slice(0, 15);
+    const kp = keyphraseCounts(doc, lemma).slice(0, 15);
     keyphrasesEl.innerHTML = kp.map(function (e) {
       return '<li><span class="phrase">' + escapeHtml(e[0]) + '</span><span class="phrase-count">' + e[1] + '×</span></li>';
     }).join('') || '<li class="analysis-note">No repeated multi-word phrases.</li>';
 
+    // Match dispersion against the same lemmatised forms the keywords use.
+    const lemmaStream = lemmatizedTerms(doc, lemma);
     const bins = 48;
     const topTerms = kw.slice(0, 6);
     positionsEl.innerHTML = topTerms.map(function (e) {
-      const cells = termPositions(words, e[0], bins).map(function (hit) {
+      const cells = termPositions(lemmaStream, e[0], bins).map(function (hit) {
         return '<span class="pos-cell' + (hit ? ' on' : '') + '"></span>';
       }).join('');
       return '<div class="pos-row"><span class="pos-label">' + escapeHtml(e[0]) + '</span>' +
@@ -303,35 +379,60 @@ In conclusion, this text presents a series of experiments that explore the poten
     setStatus(wordCount.toLocaleString() + ' words analyzed.');
   }
 
-  function countHapax(words) {
+  function wordFreq(words) {
     const f = new Map();
     words.forEach(function (w) { f.set(w, (f.get(w) || 0) + 1); });
-    let n = 0;
-    f.forEach(function (c) { if (c === 1) n++; });
-    return n;
+    return f;
   }
-  function keywordCounts(words) {
-    const f = new Map();
-    words.forEach(function (w) {
-      if (w.length < 3 || STOP.has(w) || /^\d+$/.test(w)) return;
-      f.set(w, (f.get(w) || 0) + 1);
+  function cleanTok(w) { return w.toLowerCase().replace(/[^\p{L}\p{N}'’-]/gu, ''); }
+  function skipTok(t) { return t.length < 3 || STOP.has(t) || /^\d+$/.test(t); }
+  // A surface→lemma lookup. Nouns are singularised in context by one cheap
+  // whole-doc pass; verbs are reduced to the infinitive one unique form at a
+  // time — per-word conjugation is ~100× faster than transforming the whole
+  // verb view, which is O(n²)-ish on a long document.
+  function buildLemmatizer(doc) {
+    const map = new Map();
+    const orig = doc.nouns().terms().out('array');
+    const sing = doc.clone().nouns().toSingular().terms().out('array');
+    for (let i = 0; i < orig.length; i++) {
+      const s = cleanTok(orig[i]);
+      if (s) map.set(s, cleanTok(sing[i]) || s);
+    }
+    [...new Set(doc.verbs().terms().out('array').map(cleanTok))].forEach(function (w) {
+      if (w && !map.has(w)) map.set(w, cleanTok(nlp(w).verbs().toInfinitive().text()) || w);
     });
+    return function (s) { s = cleanTok(s); return map.has(s) ? map.get(s) : s; };
+  }
+  // Content-word keywords: nouns and verbs reduced to base form, so that
+  // "communities"/"community" and "maps"/"mapping" count as one term.
+  function keywordCounts(doc, lemma) {
+    const f = new Map();
+    const bump = function (w) { w = lemma(w); if (skipTok(w)) return; f.set(w, (f.get(w) || 0) + 1); };
+    doc.nouns().terms().out('array').forEach(bump);
+    doc.verbs().terms().out('array').forEach(bump);
     return [...f.entries()].sort(function (a, b) { return b[1] - a[1]; });
   }
-  function keyphraseCounts(sentences) {
+  // Key phrases from compromise noun phrases: split each on stopwords/numbers
+  // into runs of two or more content words, lemmatised for consistent counting.
+  function keyphraseCounts(doc, lemma) {
     const f = new Map();
-    sentences.forEach(function (s) {
-      const toks = tokenizeWords(s);
-      for (let n = 2; n <= 3; n++) {
-        for (let i = 0; i + n <= toks.length; i++) {
-          const gram = toks.slice(i, i + n);
-          if (gram.some(function (t) { return STOP.has(t) || t.length < 3 || /^\d+$/.test(t); })) continue;
-          const key = gram.join(' ');
+    doc.nouns().out('array').forEach(function (phrase) {
+      let run = [];
+      const flush = function () {
+        if (run.length >= 2) {
+          const key = run.slice(0, 4).join(' ');
           f.set(key, (f.get(key) || 0) + 1);
         }
-      }
+        run = [];
+      };
+      tokenizeWords(phrase).forEach(function (t) { if (skipTok(t)) flush(); else run.push(lemma(t)); });
+      flush();
     });
     return [...f.entries()].filter(function (e) { return e[1] >= 2; }).sort(function (a, b) { return b[1] - a[1]; });
+  }
+  // Document-order token stream with the same lemmatisation, for dispersion.
+  function lemmatizedTerms(doc, lemma) {
+    return doc.terms().out('array').map(lemma);
   }
   function termPositions(words, term, bins) {
     const arr = new Array(bins).fill(false);
@@ -341,11 +442,144 @@ In conclusion, this text presents a series of experiments that explore the poten
     });
     return arr;
   }
+  // Short, plain-language definitions shown on hover — a teaching aid.
+  const STAT_DESC = {
+    'words': 'Total running words (tokens) in the document.',
+    'sentences': 'Number of sentences, as segmented by compromise.',
+    'paragraphs': 'Blocks of text separated by blank lines.',
+    'characters': 'Total characters, including spaces.',
+    'avg words / sentence': 'Mean sentence length: words ÷ sentences.',
+    'longest sentence': 'Words in the single longest sentence.',
+    'avg word length': 'Mean number of characters per word.',
+    'reading time': 'Estimated silent reading at ~200 words per minute.',
+    'unique words': 'Distinct word types — the size of the vocabulary.',
+    'lexical diversity': 'Unique ÷ total words (type–token ratio); higher = more varied.',
+    'lexical density': 'Share of content words (nouns, verbs, adjectives, adverbs); higher = more information-packed.',
+    'avg uses / word': 'How often each distinct word is used on average: total ÷ unique.',
+    'noun : verb ratio': 'Nouns ÷ verbs; high = nominal style, low = verbal style.',
+    'adjectives : noun': 'Adjectives ÷ nouns; higher = more descriptive prose.',
+    'adverbs : verb': 'Adverbs ÷ verbs; higher = more manner and degree modification.',
+    'active voice': 'Sentences in the active voice — the subject does the action.',
+    'passive voice': 'Sentences in the passive voice (e.g. “X is represented”); common in academic writing.',
+    'people': 'Distinct people named (via named-entity recognition).',
+    'places': 'Distinct places named.',
+    'organizations': 'Distinct organizations named.',
+    'Flesch reading ease': '0–100 readability score; higher is easier to read.',
+    'syllables / word': 'Average syllables per word; more syllables = harder.',
+    'complex words': 'Share of words with three or more syllables — the “hard words” in fog and SMOG.',
+    'long words': 'Share of words longer than six letters.'
+  };
   function renderStats(container, pairs) {
     container.innerHTML = pairs.map(function (p) {
-      return '<div class="stat"><span class="stat-num">' + escapeHtml(p[0]) + '</span>' +
+      const desc = STAT_DESC[p[1]];
+      return '<div class="stat' + (p[2] ? ' ' + p[2] : '') + '"' +
+        (desc ? ' data-tip="' + escapeHtml(desc) + '" tabindex="0"' : '') + '>' +
+        '<span class="stat-num">' + escapeHtml(p[0]) + '</span>' +
         '<span class="stat-lbl">' + escapeHtml(p[1]) + '</span></div>';
     }).join('');
+  }
+  // Dedupe a compromise entity view into distinct names with mention counts.
+  function entityList(view) {
+    const m = new Map();
+    view.out('array').forEach(function (s) {
+      const disp = s.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}.]+$/gu, '').trim();
+      if (!disp) return;
+      const key = disp.toLowerCase();
+      const e = m.get(key) || { text: disp, n: 0 };
+      e.n++;
+      m.set(key, e);
+    });
+    return [...m.values()].sort(function (a, b) { return b.n - a.n; });
+  }
+  // Chip lists of named entities, grouped by type; caps long lists.
+  function renderEntities(container, groups) {
+    const cap = 24;
+    const html = groups.filter(function (g) { return g.items.length; }).map(function (g) {
+      const chips = g.items.slice(0, cap).map(function (e) {
+        return '<li class="ent-chip">' + escapeHtml(e.text) +
+          (e.n > 1 ? '<span class="ent-count">' + e.n + '×</span>' : '') + '</li>';
+      }).join('');
+      const more = g.items.length > cap ? '<li class="ent-more">+' + (g.items.length - cap) + ' more</li>' : '';
+      return '<div class="ent-group"><p class="fig-cap">' + escapeHtml(g.label) + '</p>' +
+        '<ul class="ent-list">' + chips + more + '</ul></div>';
+    }).join('');
+    container.innerHTML = html || '<p class="analysis-note">No named entities found.</p>';
+  }
+  // Histogram of words-per-sentence, in 5-word buckets up to 40, then 41+.
+  function renderSentHist(container, lengths) {
+    const nb = 9;
+    const counts = new Array(nb).fill(0);
+    lengths.forEach(function (n) {
+      let idx = Math.floor((n - 1) / 5);
+      if (idx < 0) idx = 0;
+      if (idx > nb - 1) idx = nb - 1;
+      counts[idx]++;
+    });
+    const max = Math.max(1, Math.max.apply(null, counts));
+    const labels = ['5', '10', '15', '20', '25', '30', '35', '40', '40+'];
+    const bars = counts.map(function (c, i) {
+      const range = i === nb - 1 ? '41+ words' : (i * 5 + 1) + '–' + (i + 1) * 5 + ' words';
+      return '<div class="hist-bar" style="height:' + (c / max * 100) + '%"' +
+        ' title="' + range + ': ' + c + ' sentence' + (c === 1 ? '' : 's') + '"></div>';
+    }).join('');
+    const ticks = labels.map(function (l) { return '<span class="hist-tick">' + l + '</span>'; }).join('');
+    container.innerHTML = '<p class="fig-cap">Sentence length (words)</p>' +
+      '<div class="hist-bars">' + bars + '</div>' +
+      '<div class="hist-axis">' + ticks + '</div>';
+  }
+  // Word-frequency spectrum: how many distinct words occur 1×, 2×, … 11+×.
+  function renderFreqSpectrum(container, freq) {
+    const labels = ['1', '2', '3', '4', '5', '6–10', '11+'];
+    const buckets = new Array(labels.length).fill(0);
+    freq.forEach(function (c) {
+      const i = c <= 5 ? c - 1 : (c <= 10 ? 5 : 6);
+      buckets[i]++;
+    });
+    const max = Math.max(1, Math.max.apply(null, buckets));
+    const bars = buckets.map(function (c, i) {
+      return '<div class="hist-bar" style="height:' + (c / max * 100) + '%"' +
+        ' title="' + c.toLocaleString() + ' word' + (c === 1 ? '' : 's') + ' used ' + labels[i] + '×"></div>';
+    }).join('');
+    const ticks = labels.map(function (l) { return '<span class="hist-tick">' + l + '</span>'; }).join('');
+    container.innerHTML = '<p class="fig-cap">How often words repeat (times used)</p>' +
+      '<div class="hist-bars">' + bars + '</div>' +
+      '<div class="hist-axis">' + ticks + '</div>';
+  }
+  // Grade-level estimates from several formulas, as comparable bars (0–20 scale).
+  function renderGradeBars(container, items) {
+    const scale = 24;
+    const rows = items.map(function (it) {
+      const g = Math.max(0, it.grade);
+      const pct = Math.max(0, Math.min(100, g / scale * 100));
+      return '<div class="bar-row" data-tip="' + escapeHtml(it.tip) + '" tabindex="0">' +
+        '<span class="bar-label">' + escapeHtml(it.name) + '</span>' +
+        '<span class="bar-track"><span class="bar-fill" style="width:' + pct + '%"></span></span>' +
+        '<span class="bar-count">' + g.toFixed(1) + '</span></div>';
+    }).join('');
+    const ticks = [0, 6, 12, 18, 24].map(function (t) { return '<span>' + t + '</span>'; }).join('');
+    const axis = '<div class="bar-row grade-axis" aria-hidden="true">' +
+      '<span class="bar-label"></span>' +
+      '<span class="grade-axis-track">' + ticks + '</span>' +
+      '<span class="bar-count"></span></div>';
+    container.innerHTML = '<p class="fig-cap">Grade level by formula (US school grade)</p>' +
+      '<div class="bars">' + rows + axis + '</div>' +
+      '<p class="fig-note">Roughly: 0–12 school · 13–16 college · 17+ graduate</p>';
+  }
+  // Stacked bar of the document's part-of-speech makeup.
+  function renderGrammar(container, parts, total) {
+    const t = total || 1;
+    const segs = parts.map(function (p) {
+      return '<div class="gram-seg" style="width:' + (p.count / t * 100) + '%;opacity:' + p.op + '"' +
+        ' title="' + escapeHtml(p.name) + ': ' + p.count.toLocaleString() + '"></div>';
+    }).join('');
+    const legend = parts.map(function (p) {
+      return '<span class="gram-key"><span class="gram-swatch" style="opacity:' + p.op + '"></span>' +
+        escapeHtml(p.name) + ' <span class="gram-key-val">' + Math.round(p.count / t * 100) + '%</span></span>';
+    }).join('');
+    container.innerHTML = '<p class="fig-cap">Grammatical composition</p>' +
+      '<div class="gram-bar">' + segs + '</div>' +
+      '<div class="gram-legend">' + legend + '</div>' +
+      '<p class="fig-note">“Other” is function words (articles, prepositions, conjunctions, pronouns) and punctuation.</p>';
   }
   // Segments span the 0–100 scale by width (%); left = hard, right = easy.
   const EASE_BANDS = [
@@ -381,8 +615,10 @@ In conclusion, this text presents a series of experiments that explore the poten
   }
 
   // ── Input wiring ──
+  // Files and the sample fill the paste box too, so the staged text is always visible.
   function stageDoc(text, statusMsg) {
     docText = text;
+    pasteInput.value = text;
     resultsEl.hidden = true;
     sampleNote.hidden = true;
     setStatus(statusMsg);
@@ -402,10 +638,17 @@ In conclusion, this text presents a series of experiments that explore the poten
   });
   dropzone.addEventListener('drop', function (e) { if (e.dataTransfer.files[0]) readFile(e.dataTransfer.files[0]); });
   fileInput.addEventListener('change', function () { if (fileInput.files[0]) readFile(fileInput.files[0]); });
+  // Typing or pasting stages the text directly.
+  pasteInput.addEventListener('input', function () {
+    docText = pasteInput.value;
+    resultsEl.hidden = true;
+    sampleNote.hidden = true;
+    setStatus('');
+  });
 
   analyzeBtn.addEventListener('click', analyze);
   sampleBtn.addEventListener('click', loadSample);
   clearBtn.addEventListener('click', function () {
-    docText = ''; resultsEl.hidden = true; sampleNote.hidden = true; setStatus(''); fileInput.value = '';
+    docText = ''; pasteInput.value = ''; resultsEl.hidden = true; sampleNote.hidden = true; setStatus(''); fileInput.value = '';
   });
 </script>
