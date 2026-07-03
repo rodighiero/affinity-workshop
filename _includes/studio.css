@@ -32,11 +32,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.7rem;
-  min-height: 168px;
+  gap: 0.5rem;
+  min-height: 110px;
   border: 1.5px dashed var(--border-hover);
   border-radius: 8px;
-  padding: 1.8rem 1.2rem;
+  padding: 1.1rem 1.2rem;
   text-align: center;
   color: var(--muted);
   cursor: pointer;
@@ -47,7 +47,7 @@
 .dropzone.dragover .dz-icon { transform: translateY(-3px); }
 .dropzone strong { display: block; color: var(--fg); font-weight: 600; font-size: var(--text-sm, 0.8rem); }
 .dropzone input[type="file"] { display: none; }
-.dz-icon { width: 34px; height: 34px; opacity: 0.7; transition: transform 0.15s ease; }
+.dz-icon { width: 24px; height: 24px; opacity: 0.7; transition: transform 0.15s ease; }
 .dropzone:hover .dz-icon { opacity: 1; }
 .dz-sub { display: block; margin-top: 0.3rem; font-size: var(--text-xxs); letter-spacing: 0.02em; }
 
