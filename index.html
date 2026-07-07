@@ -2,83 +2,72 @@
 layout: default
 title: Home
 permalink: /
-description: A four-day workshop on network design — turning collections of texts into visual networks as a way of knowing. Bolzano, July 6–9.
+styles: [exercises.css]
+description: A hands-on lab for both tools on this site — three exercises reading a single document on the Text page, then three building and reading a similarity map on the Network page.
 ---
-
 <header class="page-head">
-  <p>A four-day workshop on network design · Bolzano · July 6–9, 2026</p>
+  <p>A hands-on lab for both tools on this site: three exercises reading a single document on the <a href="{{ '/text/' | relative_url }}">Text</a> page, then three building a similarity map on the <a href="{{ '/network/' | relative_url }}">Network</a>. Work through them in order. Everything runs live in your browser; nothing is uploaded.</p>
 </header>
 
-<div class="prose">
-  <p class="lead">Network design is the practice of turning collections of texts, people, or objects into visual networks — maps in which what matters is not individual items but the relationships between them.</p>
-
-  <p>A network shows entities as points and their connections as links, so that similarity, proximity, and grouping become something you can see and explore. In this workshop, network design is treated less as a way of decorating data than as a way of knowing it: the choices made while building a network — what counts as a connection, how the layout is arranged, what is placed at the center or the edge — shape what the final map lets you understand. Learning to design networks therefore means learning to read complex material critically, to make its structure visible, and to ask what each design decision reveals or hides.</p>
-
-  <p>The <a href="{{ '/network/' | relative_url }}">Network</a> on this site lets you build one directly in your browser — a hands-on preview of what you will do during the week.</p>
-
-  <h2>Learning outcomes</h2>
-  <p>By the end of the workshop, students will be able to:</p>
-  <ul>
-    <li>Apply the basics of text analysis to extract concepts and relationships from a single text;</li>
-    <li>Build and read network visualizations from a small corpus of documents;</li>
-    <li>Interpret a network critically, understanding how design choices shape what it reveals;</li>
-    <li>Situate their own work within the introductory scientific literature on network design;</li>
-    <li>Present their results clearly in a short final presentation.</li>
-  </ul>
-
-  <h2>Requirements</h2>
-  <p>No prior knowledge of text analysis or network visualization is required; the workshop is designed to be accessible to participants from any background. Each student should come prepared with two things:</p>
-  <ul>
-    <li><strong>One long text</strong> — an article, essay, chapter, or interview — to work with during the close-reading sessions;</li>
-    <li><strong>A small corpus of 20–30 short documents</strong> — such as paper abstracts — to turn into a network.</li>
-  </ul>
-  <p>Ideally, both the text and the corpus should relate to your own research, so that the methods learned can be applied directly to your work.</p>
-
-  <h2>Approach</h2>
-  <p>The workshop combines theory, practice, and literacy. Each session opens with a short presentation that introduces a concept and situates it within the scientific literature, followed by hands-on work in which students apply the method to their own material. Rather than treating visualization as a finished product, the emphasis is on the decisions behind it — so that students leave not only able to build a network, but able to read one critically and explain what it shows. The week follows a deliberate progression, from close reading of a single text, to comparison across a small corpus, to the design and interpretation of a network, culminating in a short presentation of each student's results.</p>
-
-  <h2>Expected outcomes</h2>
-  <p>By the close of the week, each participant will have produced a network built from their own corpus and shared it with the group in a short final presentation. They leave with two things to take forward: a reusable workflow for moving from texts to a map, and a starting set of references for going further on their own. The closing discussion is an outcome in itself, turning the individual projects into a shared conversation across the participants' different fields.</p>
+<div class="ex-intro">
+  <p class="lead">The Text page is a microscope, the Network a telescope. These exercises teach you to read what each shows — and to notice where it is wrong.</p>
+  <p>Bring your own material: one text to analyse, and a small set of texts (a dozen is plenty) to map — your own, a group's, or the built-in sample. Everything runs in the browser and assumes English: the readability, sentiment, keyword, and embedding logic all degrade on other languages.</p>
 </div>
 
-<h2 style="font-size: var(--text-xl); font-weight: 700; margin: 2.5rem 0 0.8rem;">Schedule</h2>
-<div class="prose"><p>The workshop runs over four days, from July 6 to 9, with a morning session (10am–12pm) and an afternoon session (1pm–4pm) each day. Most sessions pair a short presentation with hands-on work, moving from the analysis of a single text toward the design of a network.</p></div>
+<div class="ex-grid">
 
-<div class="schedule">
-  <table>
-    <thead>
-      <tr>
-        <th scope="col">Day</th>
-        <th scope="col">Time</th>
-        <th scope="col">Subject</th>
-        <th scope="col">Type</th>
-        <th scope="col">Bring</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr class="day-start"><td class="day">July 6</td><td class="day">10am–12pm</td><td class="subject">Opening<sup class="ref"><a href="#ref-1" title="In Praise of Visual Representation">1</a></sup></td><td>Presentation</td><td>—</td></tr>
-      <tr><td class="day"></td><td class="day">1pm–4pm</td><td class="subject">Trento Galleries<sup class="ref"><a href="#ref-2" title="Data Storytelling: A Visual Historiography of Winter Olympic Games">2</a></sup></td><td>Presentation + Workshop</td><td>—</td></tr>
-      <tr class="day-start"><td class="day">July 7</td><td class="day">10am–12pm</td><td class="subject">Text Analysis</td><td>Presentation + Workshop</td><td>A long text (article, essay, chapter, interview, etc.)</td></tr>
-      <tr><td class="day"></td><td class="day">1pm–4pm</td><td class="subject">Weather Map<sup class="ref"><a href="#ref-3" title="Weather Map: A Diachronic Visual Model for Controversy Mapping">3</a></sup></td><td>Presentation + Workshop</td><td>—</td></tr>
-      <tr class="day-start"><td class="day">July 8</td><td class="day">10am–12pm</td><td class="subject">Network Design</td><td>Workshop</td><td>20–30 abstracts (papers, articles, texts, etc.)</td></tr>
-      <tr><td class="day"></td><td class="day">1pm–4pm</td><td class="subject">Network Design</td><td>Workshop</td><td>—</td></tr>
-      <tr class="day-start"><td class="day">July 9</td><td class="day">10am–12pm</td><td class="subject">Preparation for final presentations</td><td>Workshop</td><td>—</td></tr>
-      <tr><td class="day"></td><td class="day">1pm–4pm</td><td class="subject">Final presentations and discussion</td><td>Student presentations</td><td>A 5-minute slide presentation</td></tr>
-    </tbody>
-  </table>
-</div>
+  <div class="ex">
+    <div class="ex-head"><span class="ex-num">1</span><h2 class="ex-title">Read your text as data</h2></div>
+    <div class="ex-tags"><span class="ex-tag">Measurements</span><span class="ex-tag">Vocabulary</span></div>
+    <div class="ex-body">
+      <p class="ex-row"><span class="ex-label">Task</span>Analyze your text, then describe it in two sentences using only numbers — word count, average sentence length, lexical diversity, reading time.</p>
+      <p class="ex-row learn"><span class="ex-label">Learn</span>A document has a measurable shape before it has meaning. This is the vocabulary for everything that follows.</p>
+    </div>
+  </div>
 
-<div class="prose">
-  <h2>Teachers</h2>
+  <div class="ex">
+    <div class="ex-head"><span class="ex-num">2</span><h2 class="ex-title">Find the keywords a network would use</h2></div>
+    <div class="ex-tags"><span class="ex-tag">Keywords</span></div>
+    <div class="ex-body">
+      <p class="ex-row"><span class="ex-label">Task</span>Compare the <em>most frequent</em> and <em>most distinctive</em> keyword lists. Write down the five words you would choose to represent this text among others.</p>
+      <p class="ex-row learn"><span class="ex-label">Learn</span>Distinctiveness, not frequency, gives a text its identity — the same intuition behind the affinity map, which discards the terms everyone shares.</p>
+    </div>
+  </div>
 
-  <p>Dario Rodighiero is a researcher in information design and the digital humanities at the University of Groningen, affiliated with metaLAB (at) Harvard/Berlin/Basel and the Berkman Klein Center for Internet &amp; Society. His work focuses on network visualization as a way of knowing — designing maps of scholarly and cultural data that turn complex corpora into navigable, readable spaces. Across projects ranging from affinity mapping to large-scale physicalizations and AI-assisted annotation, he treats visualization not as display but as a research practice in its own right. His research has appeared in venues across information design and the digital humanities, and his projects — from mapping scholarly communities to printing networks at architectural scale — ask how visualization can extend what a single reader is able to perceive of a field too vast to hold at once.</p>
+  <div class="ex">
+    <div class="ex-head"><span class="ex-num">3</span><h2 class="ex-title">Two texts, one lens</h2></div>
+    <div class="ex-tags"><span class="ex-tag">All sections</span></div>
+    <div class="ex-body">
+      <p class="ex-row"><span class="ex-label">Task</span>Analyze two texts — yours and a neighbour's, or your introduction and your conclusion. Which sections separate them most: grammar, keywords, sentiment?</p>
+      <p class="ex-row learn"><span class="ex-label">Learn</span>Comparison is where analysis becomes mapping — the conceptual seed of the whole network exercise. From here on, move to the <a href="{{ '/network/' | relative_url }}">Network</a>.</p>
+    </div>
+  </div>
 
-  <p>Sabina Rosenbergová is Assistant Professor of Cultural Heritage at the University of Groningen (Campus Fryslân) and a Marie Curie Fellow. An art historian by training, she earned her PhD from Sapienza University of Rome and Masaryk University in Brno, with research spanning Italy, Czechia, France, and the United States, including fellowships at the Bibliotheca Hertziana (Max Planck Institute) in Rome and CUNY in New York. Her current MSCA project examines how objects and spaces are transformed as they become heritage — how museums, collections, and conservation remake the meaning of what they set out to preserve, and what is gained and lost in the passage. She brings to the workshop a deep grounding in cultural heritage, collections, and the interpretation of historical material — perspectives that connect closely to the close reading and meaning-making at the heart of text analysis.</p>
+  <div class="ex">
+    <div class="ex-head"><span class="ex-num">4</span><h2 class="ex-title">Build your first network</h2></div>
+    <div class="ex-tags"><span class="ex-tag">Build network</span><span class="ex-tag">Stats overlay</span></div>
+    <div class="ex-body">
+      <p class="ex-row"><span class="ex-label">Task</span>Drop a set of text files — or use the built-in sample — and click <em>Build network</em>. Before touching a slider, read the stats overlay: how many files, edges, clusters, and unconnected nodes? Note the strongest and average similarity.</p>
+      <p class="ex-row learn"><span class="ex-label">Learn</span>A network is a set of relationships made visible. The raw map, before any tuning, is the ground truth you will be reshaping.</p>
+    </div>
+  </div>
 
-  <h2 id="readings">Readings</h2>
-  <ol class="readings">
-    <li id="ref-1">Rodighiero, Dario. 2024. “In Praise of Visual Representation: An Inquiry into Text Analysis and Network Visualization for Charting Scientific Communities.” <em>Visual Communication</em> 23 (3): 513–26. <a href="https://doi.org/10.1177/14703572241248408">https://doi.org/10.1177/14703572241248408</a>.</li>
-    <li id="ref-2">Rodighiero, Dario, Albrecht Kim, Giacomo Nanni, Jeffrey T. Schnapp, and Sabina Rosenbergová. Forthcoming. “Data Storytelling: A Visual Historiography of Winter Olympic Games.” In <em>Pictologic</em>, Bremen University of Arts Press. <a href="https://dariorodighiero.com/data-storytelling-a-visual-historiography-of-winter-olympic-games">https://dariorodighiero.com/data-storytelling-a-visual-historiography-of-winter-olympic-games</a>.</li>
-    <li id="ref-3">Rodighiero, Dario, and Jean Daniélou. 2023. “Weather Map: A Diachronic Visual Model for Controversy Mapping.” In <em>Zoomland: Exploring Scale in Digital History and Humanities</em>, edited by Florentina Armaselu and Andreas Fickers. De Gruyter. <a href="https://doi.org/10.1515/9783111317779-017">https://doi.org/10.1515/9783111317779-017</a>.</li>
-  </ol>
+  <div class="ex">
+    <div class="ex-head"><span class="ex-num">5</span><h2 class="ex-title">Where “similar enough” begins</h2></div>
+    <div class="ex-tags"><span class="ex-tag">Threshold</span></div>
+    <div class="ex-body">
+      <p class="ex-row"><span class="ex-label">Task</span>Drag the <em>Threshold</em> slowly from low to high. Watch edges vanish and nodes go unconnected. Find the value where the network first breaks into separate clusters — that number is your definition of “similar enough.”</p>
+      <p class="ex-row learn"><span class="ex-label">Learn</span>A link is a decision, not a fact. The threshold is where you draw the line between related and unrelated — and it changes what the map claims.</p>
+    </div>
+  </div>
+
+  <div class="ex">
+    <div class="ex-head"><span class="ex-num">6</span><h2 class="ex-title">Read the clusters against the texts</h2></div>
+    <div class="ex-tags"><span class="ex-tag">Clusters</span><span class="ex-tag">Elevation map</span></div>
+    <div class="ex-body">
+      <p class="ex-row"><span class="ex-label">Task</span>Turn on the <em>Elevation map</em> so groups rise like high ground. Name each cluster and the node that sits alone, then open the texts behind one cluster. Find one grouping the machine got right and one you would contest.</p>
+      <p class="ex-row learn"><span class="ex-label">Learn</span>Similarity is computed from words, not sense. Reading the clusters back against the documents is where interpretation returns to the map.</p>
+    </div>
+  </div>
+
 </div>
