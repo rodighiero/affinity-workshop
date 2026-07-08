@@ -1,0 +1,1015 @@
+---
+layout: default
+title: Compare
+permalink: /compare/
+styles: [network.css, studio.css, compare.css]
+description: Compare two documents paragraph by paragraph — a similarity network of their passages, showing what language they share and what is each one's own. Nothing leaves your machine.
+---
+<header class="page-head">
+  <p>Two documents, read side by side: drop in <strong>Document A</strong> and <strong>Document B</strong>, and each paragraph becomes a node in a similarity network. Passages that echo across the two texts draw together as <strong>bridges</strong> — their <strong>common language</strong> — while each document keeps its own <strong>specific</strong> texture. Everything runs live in your browser; nothing is uploaded.</p>
+</header>
+
+<div id="network-view" class="studio-view">
+  <div class="studio-col studio-col--upload">
+    <h2 class="col-head">1 · Two documents</h2>
+    <p class="lede">Each paragraph becomes a node, coloured by its source document. Drop one <code>.txt</code> or <code>.md</code> file in each slot.</p>
+
+    <label class="dropzone dropzone--a" id="dropzone-a">
+      <span class="dz-doc">Document A</span>
+      <span id="dz-a-label"><strong>Drop a text file</strong><span class="dz-sub">or click to choose · .txt or .md</span></span>
+      <input type="file" id="file-a" accept=".txt,.md,.markdown,text/plain">
+    </label>
+
+    <label class="dropzone dropzone--b" id="dropzone-b">
+      <span class="dz-doc">Document B</span>
+      <span id="dz-b-label"><strong>Drop a text file</strong><span class="dz-sub">or click to choose · .txt or .md</span></span>
+      <input type="file" id="file-b" accept=".txt,.md,.markdown,text/plain">
+    </label>
+
+    <p class="dz-alt">No files handy? <button type="button" class="linkish" id="sample-btn">Load a sample pair</button></p>
+
+    <div class="file-block" id="file-block" hidden>
+      <div class="file-list-head">
+        <span id="file-count">0 documents</span>
+        <button type="button" class="linkish" id="clear-btn">Clear</button>
+      </div>
+      <ul class="file-list" id="file-list"></ul>
+    </div>
+  </div>
+
+  <div class="studio-col studio-col--build">
+    <h2 class="col-head">2 · Build &amp; tune</h2>
+    <button type="button" class="studio-build" id="build-btn" disabled>Build comparison</button>
+
+    <p class="studio-status" id="status" aria-live="polite"></p>
+
+    <div class="studio-controls" id="controls" hidden>
+      <p class="controls-head">Tuning</p>
+      <label class="studio-control switch-row">
+        <span class="switch-label">Node labels</span>
+        <input type="checkbox" id="labels-toggle" class="switch-input">
+        <span class="switch" aria-hidden="true"></span>
+      </label>
+      <div class="control-sub" id="labels-sub" hidden>
+        <div class="studio-control slider-row">
+          <span class="sname" title="Trim long paragraph snippets to this many characters, breaking on a word boundary. At the maximum, snippets are shown in full.">Snippet length</span>
+          <input type="range" id="title-len" min="8" max="90" step="1" value="90" aria-label="Snippet length">
+          <span class="val" id="title-len-val">Full</span>
+        </div>
+        <div class="studio-control slider-row">
+          <span class="sname" title="Font size of the node labels.">Label size</span>
+          <input type="range" id="label-size" min="8" max="24" step="1" value="12" aria-label="Label font size">
+          <span class="val" id="label-size-val">12</span>
+        </div>
+      </div>
+      <label class="studio-control switch-row">
+        <span class="switch-label" title="Draw density contours behind the graph, so clusters of similar paragraphs rise like high ground on a topographic map.">Elevation map</span>
+        <input type="checkbox" id="elevation-toggle" class="switch-input">
+        <span class="switch" aria-hidden="true"></span>
+      </label>
+      <div class="control-sub" id="elevation-sub" hidden>
+        <div class="studio-control slider-row">
+          <span class="sname" title="How much the density is blurred before contours are drawn. Higher makes broad smooth hills; lower hugs the individual nodes into tighter, noisier lines.">Smoothing</span>
+          <input type="range" id="elev-bandwidth" min="8" max="60" step="1" value="30" aria-label="Elevation smoothing">
+          <span class="val" id="elev-bandwidth-val">30</span>
+        </div>
+        <div class="studio-control slider-row">
+          <span class="sname" title="How many contour lines to draw between the lowest and highest density. More lines pack the slopes with detail; fewer show only the main peaks.">Levels</span>
+          <input type="range" id="elev-levels" min="4" max="30" step="1" value="14" aria-label="Elevation levels">
+          <span class="val" id="elev-levels-val">14</span>
+        </div>
+      </div>
+      <div class="studio-control slider-row">
+        <span class="sname" title="Each paragraph links to its single closest neighbour within its own document and its single closest neighbour in the other document, but only if their similarity clears this value. Raise it and the network fragments; lower it and everything connects.">Threshold</span>
+        <input type="range" id="threshold" min="0" max="0.95" step="0.01" value="0.80" aria-label="Connection threshold">
+        <span class="val" id="threshold-val">0.80</span>
+      </div>
+      <div class="studio-control slider-row">
+        <span class="sname" title="How hard nodes push apart. Higher spreads the whole network out; lower lets clusters pull together.">Repulsion</span>
+        <input type="range" id="charge" min="40" max="600" step="10" value="280" aria-label="Repulsion">
+        <span class="val" id="charge-val">280</span>
+      </div>
+      <div class="studio-control slider-row">
+        <span class="sname" title="Pull toward the centre. Higher gathers the whole network into a tighter ball; zero lets it drift apart and fill the space.">Gravity</span>
+        <input type="range" id="gravity" min="0" max="0.3" step="0.01" value="0.05" aria-label="Gravity">
+        <span class="val" id="gravity-val">0.05</span>
+      </div>
+      <div class="studio-control slider-row">
+        <span class="sname" title="Minimum breathing room kept around each node, so markers and labels don't overlap.">Spacing</span>
+        <input type="range" id="spacing" min="4" max="60" step="1" value="24" aria-label="Node spacing">
+        <span class="val" id="spacing-val">24</span>
+      </div>
+      <div class="studio-control slider-row">
+        <span class="sname" title="Resting length of the edges. Longer edges stretch connected paragraphs further apart.">Link distance</span>
+        <input type="range" id="linkdist" min="5" max="100" step="1" value="15" aria-label="Link distance">
+        <span class="val" id="linkdist-val">15</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stage">
+    <p class="stage-empty" id="stage-empty">Your comparison network will appear here.<br><span>Add a file to each slot or load the sample pair, then build.</span></p>
+    <div class="stage-corner" id="stage-corner" hidden>
+      <div class="export-overlay">
+        <span class="export-label">Download</span>
+        <button type="button" class="export-btn" data-scale="4" title="Download a 4× PNG">PNG</button>
+        <button type="button" class="export-btn" id="export-svg" title="Download a resolution-independent vector SVG">SVG</button>
+      </div>
+      <div class="graph-legend" id="graph-legend"></div>
+      <div class="stats-overlay" id="stats" aria-live="polite"></div>
+    </div>
+    <svg id="net" aria-label="Live paragraph comparison network"></svg>
+    <div class="zoom-controls" id="zoom-controls" hidden>
+      <button type="button" class="zoom-btn" id="zoom-in" aria-label="Zoom in" title="Zoom in">+</button>
+      <button type="button" class="zoom-btn" id="zoom-out" aria-label="Zoom out" title="Zoom out">−</button>
+    </div>
+  </div>
+</div>
+
+<section class="vocab-panel" id="vocab-panel" hidden>
+  <div class="vocab-col vocab-col--a">
+    <h3 class="vocab-head" id="vocab-a-head">Document A only</h3>
+    <ul class="vocab-words" id="vocab-a"></ul>
+  </div>
+  <div class="vocab-col vocab-col--common">
+    <h3 class="vocab-head">Common language</h3>
+    <ul class="vocab-words" id="vocab-common"></ul>
+  </div>
+  <div class="vocab-col vocab-col--b">
+    <h3 class="vocab-head" id="vocab-b-head">Document B only</h3>
+    <ul class="vocab-words" id="vocab-b"></ul>
+  </div>
+</section>
+
+<script src="{{ '/js/d3.v7.min.js' | relative_url }}"></script>
+<script type="module">
+  import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3';
+
+  // Fetch models from the Hugging Face hub (we don't vendor them).
+  env.allowLocalModels = false;
+
+  // Multilingual embedder: mixed-language corpora work without any translation
+  // step. e5 models expect a short instruction prefix on each input.
+  const MODEL = 'Xenova/multilingual-e5-small';
+  const PREFIX = 'query: ';
+
+  // Layout constants for the live force graph.
+  const NODE_RADIUS = 3.5;
+  const DEFAULT_SIM = 0.80;
+
+  const d3 = window.d3;
+  const statusEl = document.getElementById('status');
+  const dropzoneA = document.getElementById('dropzone-a');
+  const dropzoneB = document.getElementById('dropzone-b');
+  const fileAInput = document.getElementById('file-a');
+  const fileBInput = document.getElementById('file-b');
+  const fileListEl = document.getElementById('file-list');
+  const controlsEl = document.getElementById('controls');
+  const thresholdEl = document.getElementById('threshold');
+  const thresholdVal = document.getElementById('threshold-val');
+  const chargeEl = document.getElementById('charge');
+  const chargeVal = document.getElementById('charge-val');
+  const gravityEl = document.getElementById('gravity');
+  const gravityVal = document.getElementById('gravity-val');
+  const spacingEl = document.getElementById('spacing');
+  const spacingVal = document.getElementById('spacing-val');
+  const linkdistEl = document.getElementById('linkdist');
+  const linkdistVal = document.getElementById('linkdist-val');
+  const labelsToggle = document.getElementById('labels-toggle');
+  const labelsSub = document.getElementById('labels-sub');
+  const titleLenEl = document.getElementById('title-len');
+  const titleLenVal = document.getElementById('title-len-val');
+  const labelSizeEl = document.getElementById('label-size');
+  const labelSizeVal = document.getElementById('label-size-val');
+  const elevationToggle = document.getElementById('elevation-toggle');
+  const elevationSub = document.getElementById('elevation-sub');
+  const elevBandwidthEl = document.getElementById('elev-bandwidth');
+  const elevBandwidthVal = document.getElementById('elev-bandwidth-val');
+  const elevLevelsEl = document.getElementById('elev-levels');
+  const elevLevelsVal = document.getElementById('elev-levels-val');
+  const buildBtn = document.getElementById('build-btn');
+  const sampleBtn = document.getElementById('sample-btn');
+  const clearBtn = document.getElementById('clear-btn');
+  const fileBlock = document.getElementById('file-block');
+  const fileCountEl = document.getElementById('file-count');
+  const stageEmpty = document.getElementById('stage-empty');
+  const statsEl = document.getElementById('stats');
+  const stageCorner = document.getElementById('stage-corner');
+  const zoomControls = document.getElementById('zoom-controls');
+  const legendEl = document.getElementById('graph-legend');
+  const vocabPanel = document.getElementById('vocab-panel');
+  const vocabAEl = document.getElementById('vocab-a');
+  const vocabBEl = document.getElementById('vocab-b');
+  const vocabCommonEl = document.getElementById('vocab-common');
+  const vocabAHead = document.getElementById('vocab-a-head');
+  const vocabBHead = document.getElementById('vocab-b-head');
+
+  // A built-in pair so the page is usable without your own files: two takes on
+  // "the city" — one a literary walk, one an urban-planning brief. They share a
+  // core vocabulary (city, street, people, square, linger) but each keeps its
+  // own register, so the common/specific split and the cross-document bridges
+  // are easy to read.
+  const SAMPLE_A = {
+    name: 'Walking the City',
+    text: '# Walking the City\n\nThe city wakes slowly in the grey light before dawn, its streets still empty and hushed. I walk without direction, letting the turns of the pavement decide where I go. Every doorway holds a shadow, and every window a small square of waiting light.\n\nPeople begin to appear at the corners, wrapped against the cold, their faces half-remembered from other mornings. A cafe opens and the smell of coffee drifts into the street. The city is a body slowly warming, stretching its long stone limbs.\n\nI have always loved the way memory clings to certain places. A bench, a bridge, a particular fall of light across a wall — each one holds a fragment of some earlier self, waiting to be found again by anyone who wanders past.\n\nBy afternoon the light turns golden and the shadows lengthen across the squares. Children chase pigeons, lovers linger, old men read their papers in the last of the sun. The city belongs, for an hour, to whoever stops to watch it.\n\nAt night the streets change their character entirely. Neon and lamplight pool on the wet stone, and the crowds thin to solitary figures hurrying home. The city keeps its secrets in the dark, and offers them only to those who walk alone.'
+  };
+  const SAMPLE_B = {
+    name: 'Designing the City',
+    text: '# Designing the City\n\nA city is above all a system of movement. Streets, transit lines, and pedestrian paths form a network that determines how people reach work, services, and one another. Good design begins by understanding these flows.\n\nDensity is the quiet engine of urban life. When people and activities are packed closely together, streets stay active, transit becomes efficient, and the distances between daily needs shrink. Zoning that allows mixed uses supports this vitality.\n\nPublic space is the connective tissue of the city. Squares, parks, and wide pavements give people room to gather, rest, and move. Well-designed public space invites people to linger rather than merely pass through.\n\nTransit infrastructure shapes the form of the city over decades. A new metro line or tram route reorganizes where people live and work, concentrating growth around stations and reducing dependence on the private car.\n\nResilient cities plan for change. Climate, population, and technology all shift over time, and so the street network, the buildings, and the public spaces must adapt. Flexible design keeps the city livable for generations to come.'
+  };
+
+  function setStatus(msg, isError) {
+    statusEl.textContent = msg || '';
+    statusEl.classList.toggle('error', !!isError);
+  }
+
+  // Yield to the browser so a status update actually paints before the next
+  // (synchronous) stage runs.
+  function paint() {
+    return new Promise(function (r) { requestAnimationFrame(function () { requestAnimationFrame(r); }); });
+  }
+
+  // ── Chrono: time a build; the result shows as "built in Ns" in the stats
+  // panel over the graph. ──
+  let chronoStart = 0;
+  let lastBuildSecs = null;
+
+  function startChrono() {
+    chronoStart = performance.now();
+    lastBuildSecs = null;
+  }
+
+  function stopChrono(ok) {
+    if (!ok) return;
+    lastBuildSecs = ((performance.now() - chronoStart) / 1000).toFixed(1);
+    renderStats();
+  }
+
+  function hideChrono() { lastBuildSecs = null; }
+
+  // ── State ──
+  let docA = null;      // { name, text }
+  let docB = null;      // { name, text }
+  let paras = [];       // node units: { text, doc: 'A'|'B', name }
+  let vectors = [];     // Float32Array per paragraph (normalized)
+  let sim = [];         // sim[i][j]
+  let vocab = null;     // { onlyA, onlyB, common } — word lists for the panel
+  let embedder = null;
+  let embedderPromise = null;
+  let busy = false;
+
+  // Start downloading/initialising the embedding model. Safe to call repeatedly.
+  function warmModel() {
+    if (!embedderPromise) {
+      embedderPromise = pipeline('feature-extraction', MODEL, {
+        progress_callback: function (p) {
+          if (busy && p && p.status === 'progress' && typeof p.progress === 'number') {
+            setStatus('Downloading the model (one-time, ~110 MB)… ' + Math.round(p.progress) + '%');
+          }
+        }
+      }).then(function (m) { embedder = m; return m; });
+    }
+    return embedderPromise;
+  }
+
+  // ── File reading ──
+  function readFile(file) {
+    return new Promise(function (resolve, reject) {
+      const r = new FileReader();
+      r.onload = function () {
+        const text = String(r.result || '').trim();
+        const fallback = file.name.replace(/\.[^.]+$/, '');
+        resolve({ name: titleFromText(text, fallback), text: text });
+      };
+      r.onerror = reject;
+      r.readAsText(file);
+    });
+  }
+
+  // Document name = its first Markdown heading, else the filename.
+  function titleFromText(text, fallback) {
+    const m = text.match(/^\s{0,3}#{1,6}\s+(.+?)\s*#*\s*$/m);
+    return m ? m[1].trim() : fallback;
+  }
+
+  // Split a document into paragraphs on blank lines (mirrors the Text page), and
+  // drop any leading Markdown heading line so a title doesn't become a node.
+  function splitParagraphs(text) {
+    return text
+      .replace(/^\s{0,3}#{1,6}\s+.+$/m, '')
+      .split(/\n\s*\n/)
+      .map(function (p) { return p.replace(/\s+/g, ' ').trim(); })
+      .filter(function (p) { return p.length > 0; });
+  }
+
+  // A short readable label for a paragraph node: its opening words.
+  function snippet(text) {
+    const s = text.replace(/\s+/g, ' ').trim();
+    if (s.length <= 90) return s;
+    return s.slice(0, 90).replace(/\s+\S*$/, '') + '…';
+  }
+
+  // Expand the two staged documents into the paragraph node list.
+  function buildParas() {
+    paras = [];
+    if (docA) splitParagraphs(docA.text).forEach(function (t) { paras.push({ text: t, doc: 'A', name: snippet(t) }); });
+    if (docB) splitParagraphs(docB.text).forEach(function (t) { paras.push({ text: t, doc: 'B', name: snippet(t) }); });
+  }
+
+  // Number of paragraphs a staged document holds (for the file list).
+  function paraCount(doc) { return doc ? splitParagraphs(doc.text).length : 0; }
+
+  // Read one dropped/picked file into slot 'A' or 'B' and stage it.
+  async function stageFile(slot, fileList) {
+    if (busy) return;
+    const files = Array.from(fileList).filter(function (f) {
+      return /\.(txt|md|markdown)$/i.test(f.name) || f.type === 'text/plain';
+    });
+    if (!files.length) { setStatus('No .txt or .md file found in that drop.', true); return; }
+
+    // A fresh drop invalidates any previous build.
+    vectors = []; sim = []; vocab = null;
+    controlsEl.hidden = true;
+    buildBtn.hidden = false;
+    clearStage();
+
+    try {
+      const doc = await readFile(files[0]);
+      if (!doc.text.length) { setStatus('That file is empty.', true); return; }
+      if (slot === 'A') docA = doc; else docB = doc;
+      afterStage();
+    } catch (err) {
+      console.error(err);
+      setStatus('Could not read that file: ' + (err && err.message ? err.message : err), true);
+    }
+  }
+
+  // Shared bookkeeping once one or both documents have changed.
+  function afterStage() {
+    renderDocList();
+    const ready = !!(docA && docB);
+    if (!docA || !docB) {
+      setStatus('Add a file to both slots to build a comparison.');
+      buildBtn.disabled = true;
+      return;
+    }
+    if (paraCount(docA) + paraCount(docB) < 2) {
+      setStatus('The two documents need at least two paragraphs between them.', true);
+      buildBtn.disabled = true;
+      return;
+    }
+    setStatus('Both documents ready — click “Build comparison”.');
+    buildBtn.disabled = false;
+    warmModel(); // start the slow model load in the background now
+  }
+
+  // Run the pipeline on the staged documents, stepping the progress indicator.
+  async function buildNetwork() {
+    if (busy || !docA || !docB) return;
+    buildParas();
+    if (paras.length < 2) { setStatus('Need at least two paragraphs to compare.', true); return; }
+    busy = true;
+    buildBtn.disabled = true;
+    buildBtn.classList.add('busy');
+    buildBtn.textContent = 'Building…';
+    stageEmpty.hidden = true;
+    startChrono();
+    let ok = false;
+    try {
+      if (!embedder) {
+        setStatus('Loading the embedding model (first time downloads ~110 MB, then cached)…');
+        await warmModel();
+      } else {
+        setStatus('Model ready.');
+        await paint();
+      }
+
+      vectors = [];
+      for (let i = 0; i < paras.length; i++) {
+        setStatus('Embedding paragraph ' + (i + 1) + ' of ' + paras.length + '…');
+        const out = await embedder(PREFIX + paras[i].text, { pooling: 'mean', normalize: true });
+        vectors.push(out.data);
+      }
+
+      setStatus('Computing similarities…');
+      await paint();
+      computeSimilarity();
+      computeVocab();
+
+      setStatus('Laying out the network…');
+      await paint();
+      buildGraph();
+      renderVocab();
+
+      ok = true;
+      renderStats();
+      renderLegend();
+      setStatus('');
+      controlsEl.hidden = false;
+    } catch (err) {
+      console.error(err);
+      setStatus('Something went wrong: ' + (err && err.message ? err.message : err), true);
+      if (!paras.length || !sim.length) stageEmpty.hidden = false;
+    } finally {
+      stopChrono(ok);
+      busy = false;
+      buildBtn.classList.remove('busy');
+      buildBtn.textContent = 'Build comparison';
+      buildBtn.disabled = !(docA && docB);
+      buildBtn.hidden = ok; // nothing to rebuild until the files change
+    }
+  }
+
+  // Two-row list of the staged documents with their paragraph counts.
+  function renderDocList() {
+    const rows = [];
+    if (docA) rows.push({ tag: 'A', doc: docA });
+    if (docB) rows.push({ tag: 'B', doc: docB });
+    fileBlock.hidden = rows.length === 0;
+    fileCountEl.textContent = rows.length + (rows.length === 1 ? ' document' : ' documents');
+    fileListEl.innerHTML = rows.map(function (r) {
+      const n = paraCount(r.doc);
+      return '<li class="doc-row doc-row--' + r.tag.toLowerCase() + '">' +
+        '<span class="doc-tag">' + r.tag + '</span>' +
+        '<span class="fname">' + escapeHtml(r.doc.name) + '</span>' +
+        '<span>' + n + (n === 1 ? ' ¶' : ' ¶') + '</span></li>';
+    }).join('');
+  }
+
+  // Tear down any drawn graph and bring back the empty-state placeholder.
+  function clearStage() {
+    if (svg) svg.selectAll('*').remove();
+    if (simulation) { simulation.stop(); simulation = null; }
+    stageEmpty.hidden = false;
+    stageCorner.hidden = true;
+    zoomControls.hidden = true;
+    vocabPanel.hidden = true;
+    hideChrono();
+  }
+
+  // Wipe everything back to the initial empty state.
+  function clearAll() {
+    if (busy) return;
+    docA = null; docB = null; paras = []; vectors = []; sim = []; vocab = null;
+    renderDocList();
+    controlsEl.hidden = true;
+    buildBtn.disabled = true;
+    buildBtn.hidden = false;
+    setStatus('');
+    fileAInput.value = '';
+    fileBInput.value = '';
+    clearStage();
+  }
+
+  // Load the built-in sample pair and stage it for building.
+  function loadSamples() {
+    if (busy) return;
+    docA = { name: SAMPLE_A.name, text: SAMPLE_A.text };
+    docB = { name: SAMPLE_B.name, text: SAMPLE_B.text };
+    vectors = []; sim = []; vocab = null;
+    renderDocList();
+    controlsEl.hidden = true;
+    buildBtn.hidden = false;
+    clearStage();
+    setStatus('Sample pair ready — click “Build comparison”.');
+    buildBtn.disabled = false;
+    warmModel(); // start the slow model load in the background now
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function computeSimilarity() {
+    const n = vectors.length;
+    sim = Array.from({ length: n }, function () { return new Array(n).fill(0); });
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        let dot = 0;
+        const a = vectors[i], b = vectors[j];
+        for (let k = 0; k < a.length; k++) dot += a[k] * b[k];
+        sim[i][j] = sim[j][i] = dot;
+      }
+    }
+  }
+
+  // ── Vocabulary: what the two documents share and what is each one's own.
+  // Plain regex tokens over the *full* documents (not per paragraph). A word in
+  // both texts is "common language"; a word in only one is that document's own.
+  // Ranked by raw frequency — with just two documents the TF-IDF used on the
+  // Network page collapses (a shared word's inverse document frequency is zero),
+  // so a simple count is both correct and legible here. English stopwords and
+  // very short words are dropped, as on the Network page. ──
+  const TOKEN_RE = /[\p{L}][\p{L}\p{M}'’-]*/gu;
+  const WORDS_PER_COL = 28;
+
+  const STOPWORDS = new Set((
+    'the and for are but not you all any can had her was one our out has have ' +
+    'this that with from they will would there their what which when who whom ' +
+    'them than then now its also back after use two how other many most such ' +
+    'even more over under between been being does did doing each few both own ' +
+    'same very too off once here why those these while where because until ' +
+    'against during above below before again further should having itself ' +
+    'about into your some could only nor own than very just like into onto ' +
+    'upon per via yet still ever much away around across along near within ' +
+    'without toward towards among whose'
+  ).split(' '));
+
+  function termCounts(text) {
+    const counts = new Map();
+    const lower = text.toLowerCase();
+    let m;
+    while ((m = TOKEN_RE.exec(lower))) {
+      const t = m[0];
+      if (t.length < 3 || STOPWORDS.has(t)) continue;
+      counts.set(t, (counts.get(t) || 0) + 1);
+    }
+    return counts;
+  }
+
+  function computeVocab() {
+    const ca = termCounts(docA.text);
+    const cb = termCounts(docB.text);
+    const onlyA = [], onlyB = [], common = [];
+    ca.forEach(function (c, t) {
+      if (cb.has(t)) common.push({ term: t, score: c + cb.get(t) });
+      else onlyA.push({ term: t, score: c });
+    });
+    cb.forEach(function (c, t) {
+      if (!ca.has(t)) onlyB.push({ term: t, score: c });
+    });
+    const byScore = function (a, b) { return b.score - a.score || (a.term < b.term ? -1 : 1); };
+    onlyA.sort(byScore); onlyB.sort(byScore); common.sort(byScore);
+    vocab = {
+      onlyA: onlyA.slice(0, WORDS_PER_COL),
+      onlyB: onlyB.slice(0, WORDS_PER_COL),
+      common: common.slice(0, WORDS_PER_COL)
+    };
+  }
+
+  // Fill one column of the vocabulary panel, sizing each word by its weight.
+  function fillVocab(el, items) {
+    if (!items || !items.length) { el.innerHTML = '<li class="vocab-empty">— none —</li>'; return; }
+    const max = items[0].score;
+    const min = items[items.length - 1].score;
+    el.innerHTML = items.map(function (it) {
+      const t = max === min ? 1 : (it.score - min) / (max - min);
+      const size = (12 + t * 12).toFixed(1);
+      return '<li style="font-size:' + size + 'px" title="' + it.score + ' occurrence' + (it.score === 1 ? '' : 's') + '">' + escapeHtml(it.term) + '</li>';
+    }).join('');
+  }
+
+  function renderVocab() {
+    if (!vocab) return;
+    vocabAHead.textContent = docA.name + ' — only here';
+    vocabBHead.textContent = docB.name + ' — only here';
+    fillVocab(vocabAEl, vocab.onlyA);
+    fillVocab(vocabBEl, vocab.onlyB);
+    fillVocab(vocabCommonEl, vocab.common);
+    vocabPanel.hidden = false;
+  }
+
+  // Each paragraph links to its single strongest neighbour *within* its own
+  // document (its internal texture) and its single strongest neighbour in the
+  // *other* document (a common-language bridge) — each kept only if it clears
+  // the threshold. Bridges are tagged so they can be styled apart.
+  function buildLinks(threshold) {
+    const n = paras.length;
+    const seen = new Set();
+    const links = [];
+    function consider(i, j) {
+      if (j < 0) return;
+      const key = i < j ? i + ':' + j : j + ':' + i;
+      if (seen.has(key)) return;
+      seen.add(key);
+      const kind = paras[i].doc === paras[j].doc ? 'within' : 'bridge';
+      links.push({ source: i, target: j, value: sim[i][j], kind: kind });
+    }
+    for (let i = 0; i < n; i++) {
+      let bestSame = -1, bestSameS = -Infinity;
+      let bestCross = -1, bestCrossS = -Infinity;
+      for (let j = 0; j < n; j++) {
+        if (i === j) continue;
+        const s = sim[i][j];
+        if (paras[i].doc === paras[j].doc) {
+          if (s > bestSameS) { bestSameS = s; bestSame = j; }
+        } else if (s > bestCrossS) { bestCrossS = s; bestCross = j; }
+      }
+      if (bestSame >= 0 && bestSameS > threshold) consider(i, bestSame);
+      if (bestCross >= 0 && bestCrossS > threshold) consider(i, bestCross);
+    }
+    return links;
+  }
+
+  // A one-line summary of the current network at the active threshold.
+  function networkStats() {
+    const n = paras.length;
+    const na = paras.filter(function (p) { return p.doc === 'A'; }).length;
+    const links = buildLinks(+thresholdEl.value);
+    const bridges = links.filter(function (l) { return l.kind === 'bridge'; }).length;
+    const connected = new Set();
+    links.forEach(function (l) { connected.add(l.source); connected.add(l.target); });
+    const isolated = n - connected.size;
+
+    // Strongest / average similarity across cross-document pairs only — that is
+    // the quantity this page is about (how much the two texts echo each other).
+    let strongest = 0, sum = 0, count = 0;
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        if (paras[i].doc === paras[j].doc) continue;
+        const s = sim[i][j];
+        if (s > strongest) strongest = s;
+        sum += s; count++;
+      }
+    }
+    const avg = count ? sum / count : 0;
+
+    return [
+      n + ' paragraphs (A ' + na + ' · B ' + (n - na) + ')',
+      links.length + (links.length === 1 ? ' edge' : ' edges'),
+      bridges + (bridges === 1 ? ' bridge' : ' bridges'),
+      isolated + ' unconnected',
+      'strongest bridge ' + strongest.toFixed(2),
+      'avg cross-doc ' + avg.toFixed(2)
+    ];
+  }
+
+  // Show the stats overlay in the top-right corner of the graph, one stat per line.
+  function renderStats() {
+    if (!sim.length) return;
+    const parts = networkStats();
+    if (lastBuildSecs != null) parts.push('built in ' + lastBuildSecs + 's');
+    statsEl.innerHTML = parts.map(function (p) { return '<span>' + escapeHtml(p) + '</span>'; }).join('');
+    stageCorner.hidden = false;
+    zoomControls.hidden = false;
+  }
+
+  // Small A/B swatch legend over the graph.
+  function renderLegend() {
+    if (!docA || !docB) return;
+    legendEl.innerHTML =
+      '<span class="lg-item lg-a"><span class="lg-dot"></span>' + escapeHtml(docA.name) + '</span>' +
+      '<span class="lg-item lg-b"><span class="lg-dot"></span>' + escapeHtml(docB.name) + '</span>' +
+      '<span class="lg-item lg-bridge"><span class="lg-line"></span>bridge</span>';
+  }
+
+  // ── Live force graph (reuses the Network page's visual classes) ──
+  let svg, zoomLayer, zoomBehavior, nodeSel, linkSel, labelSel, simulation, nodes;
+  let labelsOn = false;
+  let elevationOn = false;
+  let lastContourAt = 0; // throttle: contourDensity is too heavy to run every tick
+
+  // Trim a long snippet to `max` characters, breaking on a word boundary.
+  function shortenTitle(name, max) {
+    if (name.length <= max) return name;
+    const cut = name.slice(0, max);
+    const sp = cut.lastIndexOf(' ');
+    return (sp > 8 ? cut.slice(0, sp) : cut).replace(/[\s—–-]+$/, '') + '…';
+  }
+  function displayName(name) {
+    const max = +titleLenEl.value;
+    return max >= +titleLenEl.max ? name : shortenTitle(name, max);
+  }
+
+  function stageDim() {
+    const stage = document.querySelector('#network-view .stage');
+    return { w: stage.clientWidth, h: stage.clientHeight };
+  }
+
+  function linkDistance(d) {
+    return (+linkdistEl.value) + (1 - d.value) * 45;
+  }
+
+  function buildGraph() {
+    const dim = stageDim();
+    nodes = paras.map(function (p, i) { return { i: i, name: p.name, doc: p.doc }; });
+
+    svg = d3.select('#net');
+    svg.selectAll('*').remove();
+    zoomLayer = svg.append('g').attr('class', 'zoom-layer');
+    zoomLayer.append('g').attr('class', 'contours'); // behind everything else
+    const linkLayer = zoomLayer.append('g').attr('class', 'links');
+    const nodeLayer = zoomLayer.append('g').attr('class', 'nodes');
+    const labelLayer = zoomLayer.append('g').attr('class', 'labels'); // topmost
+
+    zoomBehavior = d3.zoom().scaleExtent([0.2, 8])
+      .on('zoom', function (e) { zoomLayer.attr('transform', e.transform); });
+    svg.call(zoomBehavior).on('dblclick.zoom', null);
+    svg.call(zoomBehavior.transform, d3.zoomIdentity); // reset on rebuild
+
+    let links = buildLinks(+thresholdEl.value);
+
+    linkSel = linkLayer.selectAll('line');
+    labelSel = labelLayer.selectAll('text').data(nodes).enter().append('text');
+
+    const nodeEnter = nodeLayer.selectAll('g.node').data(nodes).enter()
+      .append('g').attr('class', function (d) { return 'node draggable node--' + d.doc.toLowerCase(); });
+    nodeEnter.append('circle').attr('class', 'hit').attr('r', 12);
+    nodeEnter.append('circle').attr('class', 'marker').attr('r', NODE_RADIUS);
+    nodeEnter.append('circle').attr('class', 'ring').attr('r', NODE_RADIUS + 2);
+    nodeSel = nodeEnter;
+
+    nodeSel
+      .on('mouseenter', function (e, d) { d3.select(this).classed('hover', true); setLabel(d.i, d.name); })
+      .on('mouseleave', function (e, d) { d3.select(this).classed('hover', false); setLabel(d.i, labelsOn ? displayName(d.name) : ''); })
+      .call(d3.drag()
+        .on('start', function (e, d) { if (!e.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; d3.select(this).classed('dragging', true); })
+        .on('drag', function (e, d) { d.fx = e.x; d.fy = e.y; })
+        .on('end', function (e, d) { if (!e.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; d3.select(this).classed('dragging', false); }));
+
+    simulation = d3.forceSimulation(nodes)
+      .force('link', d3.forceLink(links).id(function (d) { return d.i; })
+        .distance(linkDistance)
+        .strength(function (d) { return 0.5 + d.value * 0.5; }))
+      .force('charge', d3.forceManyBody().strength(-(+chargeEl.value)).distanceMax(520))
+      .force('center', d3.forceCenter(dim.w / 2, dim.h / 2))
+      .force('x', d3.forceX(dim.w / 2).strength(+gravityEl.value))
+      .force('y', d3.forceY(dim.h / 2).strength(+gravityEl.value))
+      .force('collide', d3.forceCollide().radius(NODE_RADIUS + (+spacingEl.value)))
+      .on('tick', ticked)
+      .on('end', function () { if (elevationOn) drawContours(); });
+
+    drawLinks(links);
+    applyLabels();
+    applyFontSizes();
+    drawContours();
+  }
+
+  // ── Elevation map: topographic density contours over the node positions. ──
+  function drawContours() {
+    if (!svg) return;
+    const layer = svg.select('g.contours');
+    if (!elevationOn || !nodes) { layer.selectAll('*').remove(); return; }
+    const placed = nodes.filter(function (d) { return d.x != null && d.y != null; });
+    if (placed.length < 2) { layer.selectAll('*').remove(); return; }
+    const dim = stageDim();
+    const density = d3.contourDensity()
+      .x(function (d) { return d.x; })
+      .y(function (d) { return d.y; })
+      .size([dim.w, dim.h])
+      .cellSize(8)
+      .bandwidth(+elevBandwidthEl.value);
+    const peak = d3.max(density.thresholds(40)(placed), function (c) { return c.value; }) || 0;
+    const levels = +elevLevelsEl.value;
+    const step = peak / (levels + 1);
+    const thresholds = [];
+    for (let k = 1; k <= levels && step > 0; k++) thresholds.push(k * step);
+    const contours = density.thresholds(thresholds)(placed);
+    const geoPath = d3.geoPath();
+    const sel = layer.selectAll('path').data(contours);
+    sel.exit().remove();
+    sel.enter().append('path').merge(sel).attr('d', geoPath);
+  }
+
+  // Drive the label font size from the slider (a CSS variable on the graph's
+  // <svg>, which the .labels rule reads).
+  function applyFontSizes() {
+    if (!svg) return;
+    svg.style('--label-size', labelSizeEl.value + 'px');
+  }
+
+  function applyLabels() {
+    if (!labelSel || !nodes) return;
+    nodes.forEach(function (n) { setLabel(n.i, labelsOn ? displayName(n.name) : ''); });
+  }
+
+  // Stable key for a link, whether its endpoints are still indices or node objects.
+  function linkKey(d) {
+    const s = d.source.i != null ? d.source.i : d.source;
+    const t = d.target.i != null ? d.target.i : d.target;
+    return s < t ? s + ':' + t : t + ':' + s;
+  }
+
+  function drawLinks(links) {
+    linkSel = svg.select('g.links').selectAll('line').data(links, linkKey);
+    linkSel.exit().remove();
+    linkSel = linkSel.enter().append('line')
+      .attr('class', function (d) { return 'link' + (d.kind === 'bridge' ? ' link--bridge' : ''); })
+      .merge(linkSel);
+  }
+
+  function ticked() {
+    if (linkSel) linkSel
+      .attr('x1', function (d) { return d.source.x; }).attr('y1', function (d) { return d.source.y; })
+      .attr('x2', function (d) { return d.target.x; }).attr('y2', function (d) { return d.target.y; });
+    nodeSel.attr('transform', function (d) { return 'translate(' + d.x + ',' + d.y + ')'; });
+    labelSel.attr('transform', function (d) { return 'translate(' + d.x + ',' + d.y + ')'; });
+    if (elevationOn) {
+      const now = performance.now();
+      if (now - lastContourAt > 90) { lastContourAt = now; drawContours(); }
+    }
+  }
+
+  function setLabel(i, name) {
+    const el = labelSel.filter(function (d) { return d.i === i; });
+    el.selectAll('tspan').remove();
+    if (name) el.append('tspan').attr('x', 0).attr('y', 0).text(name);
+  }
+
+  const SVGNS = 'http://www.w3.org/2000/svg';
+
+  // Build a standalone, self-contained SVG of the current graph. External CSS
+  // won't travel with a downloaded file, so concrete colours/fonts are inlined
+  // and a background rect is drawn in.
+  function buildStandaloneSVG(scale) {
+    const dim = stageDim();
+    const w = dim.w, h = dim.h;
+    const sw = Math.round(w * scale), sh = Math.round(h * scale);
+
+    const root = getComputedStyle(document.documentElement);
+    const fg = (root.getPropertyValue('--fg') || '#000').trim();
+    const bg = (root.getPropertyValue('--bg') || '#fff').trim();
+    const view = getComputedStyle(document.getElementById('network-view'));
+    const docAColor = (view.getPropertyValue('--doc-a') || fg).trim();
+    const docBColor = (view.getPropertyValue('--doc-b') || fg).trim();
+    let fontFamily = 'sans-serif', fontSize = '11px';
+    const oneLabel = svg.select('.labels text').node();
+    if (oneLabel) {
+      const cs = getComputedStyle(oneLabel);
+      fontFamily = cs.fontFamily || fontFamily;
+      fontSize = cs.fontSize || fontSize;
+    }
+
+    const clone = svg.node().cloneNode(true);
+    clone.setAttribute('xmlns', SVGNS);
+    clone.setAttribute('width', sw);
+    clone.setAttribute('height', sh);
+    clone.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    clone.querySelectorAll('.hit, .ring').forEach(function (n) { n.remove(); });
+
+    const style = document.createElementNS(SVGNS, 'style');
+    style.textContent =
+      '.contours path{fill:none;stroke:' + fg + ';stroke-opacity:0.3;stroke-width:0.5}' +
+      '.node--a .marker{fill:' + docAColor + ';stroke:' + docAColor + ';stroke-width:0.5}' +
+      '.node--b .marker{fill:' + docBColor + ';stroke:' + docBColor + ';stroke-width:0.5}' +
+      '.link{stroke:' + fg + ';stroke-opacity:0.35;stroke-width:0.5}' +
+      '.link--bridge{stroke:' + fg + ';stroke-opacity:1;stroke-width:1.1}' +
+      '.labels text{font-family:' + fontFamily + ';font-size:' + fontSize + ';fill:' + fg +
+      ';text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:' + bg + ';stroke-width:3px;stroke-linejoin:round}';
+
+    const rect = document.createElementNS(SVGNS, 'rect');
+    rect.setAttribute('width', w);
+    rect.setAttribute('height', h);
+    rect.setAttribute('fill', bg);
+    clone.insertBefore(rect, clone.firstChild);
+    clone.insertBefore(style, clone.firstChild);
+
+    return { svgStr: new XMLSerializer().serializeToString(clone), sw: sw, sh: sh };
+  }
+
+  function downloadBlob(blob, filename) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  }
+
+  function exportPNG(scale) {
+    if (!svg || !nodes) { setStatus('Build a comparison before downloading.', true); return; }
+    const out = buildStandaloneSVG(scale);
+    const url = URL.createObjectURL(new Blob([out.svgStr], { type: 'image/svg+xml;charset=utf-8' }));
+    const img = new Image();
+    img.onload = function () {
+      const canvas = document.createElement('canvas');
+      canvas.width = out.sw;
+      canvas.height = out.sh;
+      canvas.getContext('2d').drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(function (blob) {
+        if (!blob) { setStatus('Could not create the PNG.', true); return; }
+        downloadBlob(blob, 'affinity-comparison@' + scale + 'x.png');
+      }, 'image/png');
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); setStatus('Could not render the image for download.', true); };
+    img.src = url;
+  }
+
+  function exportSVG() {
+    if (!svg || !nodes) { setStatus('Build a comparison before downloading.', true); return; }
+    const out = buildStandaloneSVG(1);
+    downloadBlob(new Blob([out.svgStr], { type: 'image/svg+xml;charset=utf-8' }), 'affinity-comparison.svg');
+  }
+
+  function nudge() { if (simulation) simulation.alpha(0.6).restart(); }
+
+  // ── Threshold slider: rebuild links live ──
+  thresholdEl.addEventListener('input', function () {
+    thresholdVal.textContent = (+thresholdEl.value).toFixed(2);
+    if (!simulation) return;
+    const links = buildLinks(+thresholdEl.value);
+    simulation.force('link').links(links);
+    drawLinks(links);
+    simulation.alpha(0.6).restart();
+    renderStats();
+  });
+
+  chargeEl.addEventListener('input', function () {
+    chargeVal.textContent = chargeEl.value;
+    if (simulation) simulation.force('charge').strength(-(+chargeEl.value));
+    nudge();
+  });
+
+  gravityEl.addEventListener('input', function () {
+    gravityVal.textContent = (+gravityEl.value).toFixed(2);
+    if (simulation) {
+      simulation.force('x').strength(+gravityEl.value);
+      simulation.force('y').strength(+gravityEl.value);
+    }
+    nudge();
+  });
+
+  spacingEl.addEventListener('input', function () {
+    spacingVal.textContent = spacingEl.value;
+    if (simulation) simulation.force('collide').radius(NODE_RADIUS + (+spacingEl.value));
+    nudge();
+  });
+
+  linkdistEl.addEventListener('input', function () {
+    linkdistVal.textContent = linkdistEl.value;
+    if (simulation) simulation.force('link').distance(linkDistance);
+    nudge();
+  });
+
+  labelsToggle.addEventListener('change', function () {
+    labelsOn = labelsToggle.checked;
+    labelsSub.hidden = !labelsOn;
+    applyLabels();
+  });
+
+  titleLenEl.addEventListener('input', function () {
+    const max = +titleLenEl.value;
+    titleLenVal.textContent = max >= +titleLenEl.max ? 'Full' : max;
+    applyLabels();
+  });
+
+  labelSizeEl.addEventListener('input', function () {
+    labelSizeVal.textContent = labelSizeEl.value;
+    applyFontSizes();
+  });
+
+  elevationToggle.addEventListener('change', function () {
+    elevationOn = elevationToggle.checked;
+    elevationSub.hidden = !elevationOn;
+    lastContourAt = 0;
+    drawContours();
+  });
+
+  elevBandwidthEl.addEventListener('input', function () {
+    elevBandwidthVal.textContent = elevBandwidthEl.value;
+    if (elevationOn) { lastContourAt = 0; drawContours(); }
+  });
+
+  elevLevelsEl.addEventListener('input', function () {
+    elevLevelsVal.textContent = elevLevelsEl.value;
+    if (elevationOn) { lastContourAt = 0; drawContours(); }
+  });
+
+  document.querySelectorAll('.export-btn[data-scale]').forEach(function (b) {
+    b.addEventListener('click', function () { exportPNG(+b.dataset.scale); });
+  });
+  document.getElementById('export-svg').addEventListener('click', exportSVG);
+
+  function zoomByFactor(k) {
+    if (!svg || !zoomBehavior) return;
+    svg.transition().duration(200).call(zoomBehavior.scaleBy, k);
+  }
+  document.getElementById('zoom-in').addEventListener('click', function () { zoomByFactor(1.3); });
+  document.getElementById('zoom-out').addEventListener('click', function () { zoomByFactor(1 / 1.3); });
+
+  // ── Drop zone wiring (one per slot) ──
+  function wireDropzone(zone, slot) {
+    ['dragenter', 'dragover'].forEach(function (ev) {
+      zone.addEventListener(ev, function (e) { e.preventDefault(); zone.classList.add('dragover'); });
+    });
+    ['dragleave', 'drop'].forEach(function (ev) {
+      zone.addEventListener(ev, function (e) { e.preventDefault(); zone.classList.remove('dragover'); });
+    });
+    zone.addEventListener('drop', function (e) { stageFile(slot, e.dataTransfer.files); });
+  }
+  wireDropzone(dropzoneA, 'A');
+  wireDropzone(dropzoneB, 'B');
+  fileAInput.addEventListener('change', function () { stageFile('A', fileAInput.files); });
+  fileBInput.addEventListener('change', function () { stageFile('B', fileBInput.files); });
+  buildBtn.addEventListener('click', buildNetwork);
+  sampleBtn.addEventListener('click', loadSamples);
+  clearBtn.addEventListener('click', clearAll);
+
+  // Keep the simulation centered on resize.
+  let resizeTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      if (!simulation) return;
+      const dim = stageDim();
+      simulation.force('center', d3.forceCenter(dim.w / 2, dim.h / 2));
+      simulation.force('x').x(dim.w / 2);
+      simulation.force('y').y(dim.h / 2);
+      simulation.alpha(0.3).restart();
+    }, 150);
+  });
+</script>

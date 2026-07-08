@@ -1,0 +1,127 @@
+/* ── Compare: two-document paragraph comparison ── */
+/* Reuses the Network page's studio chrome and force-graph classes; this sheet
+   only adds what is specific to the comparison: two document colours, the
+   cross-document "bridge" links, an A/B legend, and the three-column
+   common/specific vocabulary panel below the graph. */
+
+/* Document accent colours. A restrained blue / warm rust, distinct in both
+   light and dark. Set on #network-view so the export code can read them, and
+   so descendants (markers, legend, panel) inherit them. */
+#network-view {
+  --doc-a: #1f6f8b;
+  --doc-b: #c0602a;
+}
+html.dark #network-view {
+  --doc-a: #6fb9d4;
+  --doc-b: #e8955c;
+}
+
+/* Two stacked dropzones, one per document, each tinted by its accent. */
+.dropzone--a { margin-top: 0.6rem; }
+.dropzone--b { margin-top: 0.7rem; }
+.dropzone--a { border-color: color-mix(in srgb, var(--doc-a) 55%, var(--border-hover)); }
+.dropzone--b { border-color: color-mix(in srgb, var(--doc-b) 55%, var(--border-hover)); }
+.dropzone--a:hover, .dropzone--a.dragover { border-color: var(--doc-a); }
+.dropzone--b:hover, .dropzone--b.dragover { border-color: var(--doc-b); }
+.dropzone--a.dragover { background: color-mix(in srgb, var(--doc-a) 12%, transparent); }
+.dropzone--b.dragover { background: color-mix(in srgb, var(--doc-b) 12%, transparent); }
+.dz-doc {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  font-size: var(--text-xxs);
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+.dropzone--a .dz-doc { color: var(--doc-a); }
+.dropzone--b .dz-doc { color: var(--doc-b); }
+
+/* Loaded-document list: a small A/B tag before each name. */
+.doc-tag {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 3px;
+  font-size: var(--text-xxs);
+  font-weight: 700;
+  color: var(--bg);
+}
+.doc-row--a .doc-tag { background: var(--doc-a); }
+.doc-row--b .doc-tag { background: var(--doc-b); }
+.doc-row .fname { flex: 1; }
+
+/* Paragraph nodes, filled by their source document. */
+#network-view .node--a .marker { fill: var(--doc-a); stroke: var(--doc-a); }
+#network-view .node--b .marker { fill: var(--doc-b); stroke: var(--doc-b); }
+#network-view .node--a .ring { stroke: var(--doc-a); }
+#network-view .node--b .ring { stroke: var(--doc-b); }
+
+/* Links: within-document links are faint (each text's internal texture);
+   cross-document "bridges" are drawn in full strength — the common language. */
+#network-view .link { stroke: var(--fg); stroke-opacity: 0.35; stroke-width: 0.5; }
+#network-view .link--bridge { stroke-opacity: 1; stroke-width: 1.1; }
+
+/* A/B legend, pinned under the download controls over the graph. */
+.graph-legend {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.2rem;
+  font-size: var(--text-xxs);
+  color: var(--muted);
+  pointer-events: none;
+}
+.graph-legend .lg-item { display: inline-flex; align-items: center; gap: 0.35rem; }
+.graph-legend .lg-dot { width: 8px; height: 8px; border-radius: 50%; }
+.graph-legend .lg-a .lg-dot { background: var(--doc-a); }
+.graph-legend .lg-b .lg-dot { background: var(--doc-b); }
+.graph-legend .lg-line { width: 12px; height: 0; border-top: 1.5px solid var(--fg); }
+
+/* ── Vocabulary panel: A-only · common · B-only ── */
+.vocab-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1.5rem;
+  margin: 0 0 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+.vocab-panel[hidden] { display: none; }
+.vocab-head {
+  margin: 0 0 0.8rem;
+  font-size: var(--text-xxs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--muted);
+  line-height: var(--lh-tight);
+}
+.vocab-col--a .vocab-head { color: var(--doc-a); }
+.vocab-col--b .vocab-head { color: var(--doc-b); }
+.vocab-col--common { text-align: center; }
+.vocab-col--b { text-align: right; }
+.vocab-words {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.55rem;
+  line-height: 1.35;
+}
+.vocab-col--common .vocab-words { justify-content: center; }
+.vocab-col--b .vocab-words { justify-content: flex-end; }
+.vocab-words li { color: var(--fg); white-space: nowrap; }
+.vocab-col--a .vocab-words li { color: var(--doc-a); }
+.vocab-col--b .vocab-words li { color: var(--doc-b); }
+.vocab-words .vocab-empty { color: var(--muted); font-size: var(--text-xs) !important; font-style: italic; }
+
+@media (max-width: 720px) {
+  .vocab-panel { grid-template-columns: 1fr; gap: 1.5rem; }
+  .vocab-col--b, .vocab-col--common { text-align: left; }
+  .vocab-col--common .vocab-words, .vocab-col--b .vocab-words { justify-content: flex-start; }
+}

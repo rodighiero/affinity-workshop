@@ -4,12 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-The companion website for the **Affinity Network Workshop** (a four-day workshop on network design, Bolzano, July 6–9, 2026). It's a small Jekyll site with four pages, and everything analytical runs **client-side in the browser** — nothing is precomputed, committed, or uploaded:
+The companion website for the **Affinity Network Workshop** (a four-day workshop on network design, Bolzano, July 6–9, 2026). It's a small Jekyll site with five pages, and everything analytical runs **client-side in the browser** — nothing is precomputed, committed, or uploaded:
 
 - **Home** (`index.html`, permalink `/`) — workshop description, learning outcomes, approach, and a day-by-day schedule.
 - **Text** (`text.html`, permalink `/text/`) — the "microscope": drop in **one** document and read it in layers (measurements, vocabulary, grammar, entities, readability, sentiment, keywords, recurring phrases, and a paragraph-by-paragraph narrative arc). English only.
 - **Exercises** (`exercises.html`, permalink `/exercises/`) — a static lab of eight close-reading tasks for the Text page, used in the workshop's text-analysis session. Pure content (no JS); styled by `exercises.css`. Each task card maps to Text-page sections and pairs a *Task* with what it teaches (*Learn*); the last few point toward the Network page.
 - **Network** (`network.html`, permalink `/network/`) — the "telescope": drop in a **set** of text files and watch them arrange into a similarity network. Embedding, similarity, and force layout all run in the browser.
+- **Compare** (`compare.html`, permalink `/compare/`) — two documents side by side: drop **one file in each of two slots**, and each *paragraph* becomes a node in a similarity network, coloured by its source document. Cross-document links are drawn as prominent "bridges" (shared themes = *common language*), within-document links stay faint (each text's own texture = *specific language*), and a three-column panel below the graph lists each document's own vocabulary and the words they share. Reuses the Network page's embedding/similarity/force-layout engine.
 
 > History: the site previously rendered a *pre-baked* publication graph computed offline in Python. That is gone, along with its `_publications/` abstracts and `scripts/`. If you find references to `_data/network.json`, a `network` layout, or "baked positions", they're stale — nothing in the current site produces or consumes them.
 
@@ -46,6 +47,16 @@ On **Build network**:
 - **Stats overlay** (top-right of the graph): files, edges, clusters (union-find over links), unconnected, strongest/avg similarity, and "built in Ns". Recomputes live on threshold change.
 - **PNG export** at 1×/2×/4×: `exportPNG(scale)` clones the SVG, inlines colours/fonts (external CSS doesn't apply to an SVG-in-`<img>`), and rasterises at the scaled size for crisp output. Label fonts may fall back to a system sans in the export.
 - A built-in `SAMPLE_DOCS` corpus lets the page be tried without user files.
+
+### The Compare page (`compare.html`)
+
+A near-copy of the Network builder, so it shares `network.css` + `studio.css` (plus its own `compare.css`) and the same `#network-view` markup, embedding pipeline, force simulation, elevation map, zoom, and PNG/SVG export. The differences are all about **two documents, compared at the paragraph level**:
+
+- **Input** — two dropzones (`stageFile('A'|'B', …)`), each holding a single file into `docA` / `docB`. On build, `buildParas()` runs `splitParagraphs()` (blank-line split, lifted from the Text page, minus any leading Markdown heading) over each document; every paragraph becomes a node `{ text, doc, name }`, where `name` is a `snippet()` of the opening words. These paragraph nodes — not whole files — are what get embedded and laid out (the array is `paras`, playing the role `docs` plays on the Network page).
+- **Links** — `buildLinks(threshold)` gives each paragraph **two** candidate edges: its strongest neighbour *within* its own document and its strongest *cross*-document neighbour, each kept only above the threshold. Cross-document edges are tagged `kind:'bridge'` and styled prominently (`.link--bridge`); within-document edges stay faint. Bridges are the **common language**; the faint within-document web is each text's **specific language**.
+- **Colour** — nodes carry `.node--a` / `.node--b`; the two accent colours are the CSS custom properties `--doc-a` / `--doc-b` (set on `#network-view` in `compare.css`, light/dark variants), read back by the export code so PNG/SVG match. A small A/B legend sits over the graph.
+- **Vocabulary panel** — a three-column section below the graph (`#vocab-panel`): *A-only · common · B-only*. `computeVocab()` tokenises the two **full** documents (same `TOKEN_RE` + `STOPWORDS` as the Network page) and splits terms into shared (in both) vs. exclusive (in one), ranked by raw count and sized by weight. Note: the Network page's TF-IDF `computeKeywords`/`edgeKeywords`/`nodeKeywords` are **not** used here — with only two documents a shared word's IDF is `log(2/2)=0`, so a plain frequency count is used instead. There is no edge-keyword layer on this page.
+- A built-in `SAMPLE_A` / `SAMPLE_B` pair (two takes on "the city") lets the page be tried without user files.
 
 ### The Text analyzer (`text.html`)
 
