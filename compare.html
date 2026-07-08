@@ -506,15 +506,26 @@ description: Compare two documents paragraph by paragraph — a similarity netwo
   const WORDS_PER_COL = 28;
 
   const STOPWORDS = new Set((
+    // pronouns, articles, prepositions, conjunctions, auxiliaries
     'the and for are but not you all any can had her was one our out has have ' +
     'this that with from they will would there their what which when who whom ' +
-    'them than then now its also back after use two how other many most such ' +
+    'them than then now its also back after two how other many most such ' +
     'even more over under between been being does did doing each few both own ' +
     'same very too off once here why those these while where because until ' +
     'against during above below before again further should having itself ' +
-    'about into your some could only nor own than very just like into onto ' +
-    'upon per via yet still ever much away around across along near within ' +
-    'without toward towards among whose'
+    'about into your some could only nor just like onto upon per via yet ' +
+    'still ever much away around across along near within without toward ' +
+    'towards among whose ' +
+    // light verbs, quantifiers and connectives that clutter a vocabulary list
+    'able actually almost already always another anyone anything became become ' +
+    'becomes cannot come comes coming done down else enough especially every ' +
+    'everyone everything get gets getting give given gives going gone got ' +
+    'however indeed instead keep kept let lets made make makes making may might ' +
+    'must need needs never next none nothing often ones others ourselves put ' +
+    'puts quite rather really said say says see seem seems seen several shall ' +
+    'since someone something sometimes soon take taken takes tell tells thing ' +
+    'things think though thus together told took use used uses using want ' +
+    'wants way ways well went were whatever whenever wherever whether whole yes'
   ).split(' '));
 
   function termCounts(text) {
