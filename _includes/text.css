@@ -1,7 +1,4 @@
 /* ── Text: single-document analysis ── */
-/* Larger page intro (Text page only) */
-.page-head p { font-size: var(--text-base); line-height: var(--lh-loose); max-width: 48rem; }
-
 .text-input { max-width: 52rem; margin: 0 0 2rem; }
 .text-input .dropzone { min-height: 140px; }
 .dz-alt a { text-decoration: underline; text-underline-offset: 2px; }

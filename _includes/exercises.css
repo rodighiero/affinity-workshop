@@ -6,9 +6,15 @@
 
 .ex-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
   margin: 0 0 3rem;
+}
+@media (max-width: 60rem) {
+  .ex-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 34rem) {
+  .ex-grid { grid-template-columns: 1fr; }
 }
 
 .ex {
@@ -17,8 +23,12 @@
   padding: 1.2rem 1.3rem 1.3rem;
   display: flex;
   flex-direction: column;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
 }
 .ex:hover { border-color: var(--border-hover); }
+.ex:hover .ex-title { text-decoration: underline; }
 
 .ex-head {
   display: flex;
@@ -58,7 +68,7 @@
   white-space: nowrap;
 }
 
-.ex-body { margin-left: 2rem; }
+.ex-body { margin-left: 0; }
 .ex-row { margin: 0 0 0.7rem; line-height: var(--lh-loose); }
 .ex-row:last-child { margin-bottom: 0; }
 .ex-label {

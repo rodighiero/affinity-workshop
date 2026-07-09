@@ -3,71 +3,40 @@ layout: default
 title: Home
 permalink: /
 styles: [exercises.css]
-description: A hands-on lab for both tools on this site — three exercises reading a single document on the Text page, then three building and reading a similarity map on the Network page.
+description: An overview of the four in-browser tools on this site — Text reads a single document in layers, Network and Audio map a set of texts or sound clips into a similarity network, and Compare sets two documents side by side.
 ---
-<header class="page-head">
-  <p>A hands-on lab for both tools on this site: three exercises reading a single document on the <a href="{{ '/text/' | relative_url }}">Text</a> page, then three building a similarity map on the <a href="{{ '/network/' | relative_url }}">Network</a>. Work through them in order. Everything runs live in your browser; nothing is uploaded.</p>
-</header>
-
 <div class="ex-intro">
-  <p class="lead">The Text page is a microscope, the Network a telescope. These exercises teach you to read what each shows — and to notice where it is wrong.</p>
-  <p>Bring your own material: one text to analyse, and a small set of texts (a dozen is plenty) to map — your own, a group's, or the built-in sample. Everything runs in the browser and assumes English: the readability, sentiment, keyword, and embedding logic all degrade on other languages.</p>
+  <p class="lead">Four tools for the workshop, each running live in your browser — nothing is uploaded. Start with one text under the microscope, then step back to the telescope and watch a set arrange itself by likeness: bring your own material — one text to read closely, a small set of texts (a dozen is plenty) or short sound clips to map, or two documents to hold against each other — or use each page's built-in sample. Everything runs in the browser and the text tools assume English.</p>
 </div>
 
 <div class="ex-grid">
 
-  <div class="ex">
-    <div class="ex-head"><span class="ex-num">1</span><h2 class="ex-title">Read your text as data</h2></div>
-    <div class="ex-tags"><span class="ex-tag">Measurements</span><span class="ex-tag">Vocabulary</span></div>
+  <a class="ex" href="{{ '/text/' | relative_url }}">
+    <div class="ex-head"><h2 class="ex-title">Text</h2></div>
     <div class="ex-body">
-      <p class="ex-row"><span class="ex-label">Task</span>Analyze your text, then describe it in two sentences using only numbers — word count, average sentence length, lexical diversity, reading time.</p>
-      <p class="ex-row learn"><span class="ex-label">Learn</span>A document has a measurable shape before it has meaning. This is the vocabulary for everything that follows.</p>
+      <p class="ex-row">Drop in one document and read it in layers: measurements, vocabulary, grammar, entities, readability, sentiment, keywords, recurring phrases, and a paragraph-by-paragraph narrative arc.</p>
     </div>
-  </div>
+  </a>
 
-  <div class="ex">
-    <div class="ex-head"><span class="ex-num">2</span><h2 class="ex-title">Find the keywords a network would use</h2></div>
-    <div class="ex-tags"><span class="ex-tag">Keywords</span></div>
+  <a class="ex" href="{{ '/network/' | relative_url }}">
+    <div class="ex-head"><h2 class="ex-title">Network</h2></div>
     <div class="ex-body">
-      <p class="ex-row"><span class="ex-label">Task</span>Compare the <em>most frequent</em> and <em>most distinctive</em> keyword lists. Write down the five words you would choose to represent this text among others.</p>
-      <p class="ex-row learn"><span class="ex-label">Learn</span>Distinctiveness, not frequency, gives a text its identity — the same intuition behind the affinity map, which discards the terms everyone shares.</p>
+      <p class="ex-row">Drop in a set of text files and watch them arrange into a similarity network. Embedding, similarity, and a live force layout all run in the browser; tune the threshold and forces, then export a PNG.</p>
     </div>
-  </div>
+  </a>
 
-  <div class="ex">
-    <div class="ex-head"><span class="ex-num">3</span><h2 class="ex-title">Two texts, one lens</h2></div>
-    <div class="ex-tags"><span class="ex-tag">All sections</span></div>
+  <a class="ex" href="{{ '/audio/' | relative_url }}">
+    <div class="ex-head"><h2 class="ex-title">Audio</h2></div>
     <div class="ex-body">
-      <p class="ex-row"><span class="ex-label">Task</span>Analyze two texts — yours and a neighbour's, or your introduction and your conclusion. Which sections separate them most: grammar, keywords, sentiment?</p>
-      <p class="ex-row learn"><span class="ex-label">Learn</span>Comparison is where analysis becomes mapping — the conceptual seed of the whole network exercise. From here on, move to the <a href="{{ '/network/' | relative_url }}">Network</a>.</p>
+      <p class="ex-row">Drop in a set of short audio clips and watch them arrange by how they <em>sound</em>. The same network engine, embedding with CLAP instead of text — click a node to hear its clip.</p>
     </div>
-  </div>
+  </a>
 
-  <div class="ex">
-    <div class="ex-head"><span class="ex-num">4</span><h2 class="ex-title">Build your first network</h2></div>
-    <div class="ex-tags"><span class="ex-tag">Build network</span><span class="ex-tag">Stats overlay</span></div>
+  <a class="ex" href="{{ '/compare/' | relative_url }}">
+    <div class="ex-head"><h2 class="ex-title">Compare</h2></div>
     <div class="ex-body">
-      <p class="ex-row"><span class="ex-label">Task</span>Drop a set of text files — or use the built-in sample — and click <em>Build network</em>. Before touching a slider, read the stats overlay: how many files, edges, clusters, and unconnected nodes? Note the strongest and average similarity.</p>
-      <p class="ex-row learn"><span class="ex-label">Learn</span>A network is a set of relationships made visible. The raw map, before any tuning, is the ground truth you will be reshaping.</p>
+      <p class="ex-row">Drop one file into each of two slots and every paragraph becomes a node, coloured by its source. Cross-document <em>bridges</em> mark shared themes; a panel below lists each document's own words and the words they share.</p>
     </div>
-  </div>
-
-  <div class="ex">
-    <div class="ex-head"><span class="ex-num">5</span><h2 class="ex-title">Where “similar enough” begins</h2></div>
-    <div class="ex-tags"><span class="ex-tag">Threshold</span></div>
-    <div class="ex-body">
-      <p class="ex-row"><span class="ex-label">Task</span>Drag the <em>Threshold</em> slowly from low to high. Watch edges vanish and nodes go unconnected. Find the value where the network first breaks into separate clusters — that number is your definition of “similar enough.”</p>
-      <p class="ex-row learn"><span class="ex-label">Learn</span>A link is a decision, not a fact. The threshold is where you draw the line between related and unrelated — and it changes what the map claims.</p>
-    </div>
-  </div>
-
-  <div class="ex">
-    <div class="ex-head"><span class="ex-num">6</span><h2 class="ex-title">Read the clusters against the texts</h2></div>
-    <div class="ex-tags"><span class="ex-tag">Clusters</span><span class="ex-tag">Elevation map</span></div>
-    <div class="ex-body">
-      <p class="ex-row"><span class="ex-label">Task</span>Turn on the <em>Elevation map</em> so groups rise like high ground. Name each cluster and the node that sits alone, then open the texts behind one cluster. Find one grouping the machine got right and one you would contest.</p>
-      <p class="ex-row learn"><span class="ex-label">Learn</span>Similarity is computed from words, not sense. Reading the clusters back against the documents is where interpretation returns to the map.</p>
-    </div>
-  </div>
+  </a>
 
 </div>
